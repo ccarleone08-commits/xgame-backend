@@ -1,0 +1,571 @@
+﻿<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🏆 Ümumi Leaderboard - Bütün Oyunlar</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 50%, #0f1419 100%);
+            min-height: 100vh;
+            color: #fff;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            padding: 40px 20px;
+            background: rgba(0,0,0,0.4);
+            border-radius: 20px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+
+            .header h1 {
+                font-size: 3rem;
+                background: linear-gradient(135deg, #ffd700 0%, #ffed4e 50%, #ffd700 100%);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                margin-bottom: 10px;
+            }
+
+        .period-selector {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 15px;
+        }
+
+        .period-btn {
+            padding: 10px 24px;
+            background: rgba(255,255,255,0.05);
+            border: 2px solid rgba(255,255,255,0.2);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: #9ca3af;
+        }
+
+            .period-btn:hover {
+                background: rgba(255,255,255,0.1);
+                color: #fff;
+            }
+
+            .period-btn.active {
+                background: rgba(59, 130, 246, 0.3);
+                border-color: #3b82f6;
+                color: #3b82f6;
+            }
+
+        .game-btn {
+            padding: 12px 30px;
+            background: rgba(255,255,255,0.1);
+            border: 2px solid transparent;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1rem;
+            font-weight: bold;
+            color: #fff;
+        }
+
+            .game-btn:hover {
+                background: rgba(255,255,255,0.15);
+                transform: translateY(-2px);
+            }
+
+            .game-btn.active {
+                background: rgba(74, 222, 128, 0.3);
+                border-color: #4ade80;
+                color: #4ade80;
+            }
+
+        .leaderboard {
+            background: rgba(0,0,0,0.3);
+            border-radius: 20px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+        }
+
+        .leaderboard-header {
+            display: grid;
+            grid-template-columns: 80px 1fr 150px 150px 150px 150px;
+            gap: 20px;
+            padding: 15px 20px;
+            background: rgba(74, 222, 128, 0.2);
+            border-radius: 10px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            font-size: 0.95rem;
+        }
+
+        .leaderboard-row {
+            display: grid;
+            grid-template-columns: 80px 1fr 150px 150px 150px 150px;
+            gap: 20px;
+            padding: 25px 20px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            margin-bottom: 15px;
+            transition: all 0.3s;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+            .leaderboard-row::before {
+                content: '';
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 5px;
+                height: 100%;
+                background: transparent;
+                transition: all 0.3s;
+            }
+
+            .leaderboard-row:hover {
+                background: rgba(255,255,255,0.1);
+                transform: translateX(10px);
+            }
+
+                .leaderboard-row:hover::before {
+                    background: #4ade80;
+                }
+
+            .leaderboard-row.top1::before {
+                background: #ffd700;
+            }
+
+            .leaderboard-row.top2::before {
+                background: #c0c0c0;
+            }
+
+            .leaderboard-row.top3::before {
+                background: #cd7f32;
+            }
+
+        .rank {
+            font-size: 2rem;
+            font-weight: bold;
+            text-align: center;
+        }
+
+            .rank.gold {
+                color: #ffd700;
+                text-shadow: 0 0 10px #ffd700;
+            }
+
+            .rank.silver {
+                color: #c0c0c0;
+                text-shadow: 0 0 10px #c0c0c0;
+            }
+
+            .rank.bronze {
+                color: #cd7f32;
+                text-shadow: 0 0 10px #cd7f32;
+            }
+
+        .player-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .player-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #4ade80, #22c55e);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            border: 3px solid #ffd700;
+            position: relative;
+        }
+
+            .player-avatar.top1 {
+                border-color: #ffd700;
+                box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+            }
+
+            .player-avatar.top2 {
+                border-color: #c0c0c0;
+                box-shadow: 0 0 20px rgba(192, 192, 192, 0.5);
+            }
+
+            .player-avatar.top3 {
+                border-color: #cd7f32;
+                box-shadow: 0 0 20px rgba(205, 127, 50, 0.5);
+            }
+            .player-avatar img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                border-radius: 50%;
+            }
+
+        .player-details {
+            flex: 1;
+        }
+
+        .player-name {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .player-rank-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 3px 12px;
+            background: rgba(74, 222, 128, 0.2);
+            border: 1px solid #4ade80;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            color: #4ade80;
+            font-weight: bold;
+        }
+
+        .game-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px;
+            font-size: 0.7rem;
+            margin-left: 5px;
+        }
+
+            .game-badge.poker {
+                background: rgba(239, 68, 68, 0.3);
+                color: #ef4444;
+            }
+
+            .game-badge.okey {
+                background: rgba(59, 130, 246, 0.3);
+                color: #3b82f6;
+            }
+
+            .game-badge.backgammon {
+                background: rgba(168, 85, 247, 0.3);
+                color: #a855f7;
+            }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: #9ca3af;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #4ade80;
+        }
+
+            .stat-value.earnings {
+                color: #ffd700;
+            }
+
+            .stat-value.winrate {
+                color: #3b82f6;
+            }
+
+        .crown {
+            position: absolute;
+            top: -10px;
+            right: -5px;
+            font-size: 1.5rem;
+            transform: rotate(25deg);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            color: #9ca3af;
+        }
+
+        .empty-state-icon {
+            font-size: 5rem;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .back-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            padding: 12px 24px;
+            background: rgba(255,255,255,0.1);
+            border: 2px solid #4ade80;
+            border-radius: 10px;
+            color: #fff;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s;
+            backdrop-filter: blur(10px);
+        }
+
+            .back-btn:hover {
+                background: rgba(74, 222, 128, 0.2);
+                transform: translateY(-2px);
+            }
+
+        .loading {
+            text-align: center;
+            padding: 60px;
+            font-size: 1.5rem;
+        }
+
+        .spinner {
+            border: 5px solid rgba(255,255,255,0.1);
+            border-top: 5px solid #ffd700;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .leaderboard-header,
+            .leaderboard-row {
+                grid-template-columns: 60px 1fr 120px;
+                gap: 10px;
+            }
+
+            .stat:nth-child(n+4) {
+                display: none;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <a href="/" class="back-btn">← Ana Səhifə</a>
+
+    <div class="container">
+        <div class="header">
+            <h1>🏆 ÜMUMİ LEADERBOARD</h1>
+            <p style="color: #9ca3af; margin-top: 10px;">Bütün oyunlar üzrə ən yaxşı oyunçular</p>
+
+            <div class="game-selector">
+                <button class="game-btn active" onclick="loadLeaderboard('all', 'alltime', this)">🎮 Hamısı</button>
+                <button class="game-btn" onclick="loadLeaderboard('poker', 'alltime', this)">🃏 Poker</button>
+                <button class="game-btn" onclick="loadLeaderboard('okey', 'alltime', this)">🎴 Okey</button>
+                <button class="game-btn" onclick="loadLeaderboard('backgammon', 'alltime', this)">🎲 Backgammon</button>
+                <button class="game-btn" onclick="loadLeaderboard('loto', 'alltime', this)">🎲 Loto</button>
+                <button class="game-btn" onclick="loadLeaderboard('seka', 'alltime', this)">🎲 Seka</button>
+                <button class="game-btn" onclick="loadLeaderboard('durak', 'alltime', this)">🎲 Durak</button>
+                <button class="game-btn" onclick="loadLeaderboard('domino', 'alltime', this)">🎲 Domino</button>
+            </div>
+
+            <div class="period-selector" style="margin-top: 15px;">
+                <button class="period-btn" onclick="changePeriod('weekly', this)">📅 Bu Həftə</button>
+                <button class="period-btn active" onclick="changePeriod('alltime', this)">♾️ Bütün Vaxtlar</button>
+            </div>
+        </div>
+
+        <div class="leaderboard">
+            <div class="leaderboard-header">
+                <div>Sıra</div>
+                <div>Oyunçu</div>
+                <div>Rank</div>
+                <div>Qazanc</div>
+                <div>Oyunlar</div>
+                <div>Qalib %</div>
+            </div>
+
+            <div id="leaderboardContent">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    Yüklənir...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentGameType = 'all';
+        let currentPeriod = 'alltime';
+
+        function getToken() {
+            const raw = document.cookie
+                .split("; ")
+                .find(row => row.startsWith("AuthToken="))
+                ?.split("=")[1];
+            return raw ? decodeURIComponent(raw).trim() : "";
+        }
+
+        async function loadLeaderboard(gameType, period, buttonElement) {
+            currentGameType = gameType;
+            currentPeriod = period;
+
+            // Update active game button
+            if (buttonElement) {
+                document.querySelectorAll('.game-btn').forEach(btn => btn.classList.remove('active'));
+                buttonElement.classList.add('active');
+            }
+
+            // Show loading
+            document.getElementById('leaderboardContent').innerHTML = `
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        Yüklənir...
+                    </div>
+                `;
+
+            try {
+                const response = await fetch(`/api/leaderboard/${gameType}/${period}`, {
+                    headers: {
+                        'Authorization': 'Bearer ' + getToken()
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to load leaderboard');
+                }
+
+                const data = await response.json();
+                displayLeaderboard(data);
+            } catch (error) {
+                console.error('Error loading leaderboard:', error);
+                document.getElementById('leaderboardContent').innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">😢</div>
+                            <div class="empty-state-text">Məlumat yüklənmədi</div>
+                            <p>Xəta baş verdi. Zəhmət olmasa yenidən cəhd edin.</p>
+                        </div>
+                    `;
+            }
+        }
+
+        function changePeriod(period, buttonElement) {
+            currentPeriod = period;
+
+            // Update active period button
+            document.querySelectorAll('.period-btn').forEach(btn => btn.classList.remove('active'));
+            buttonElement.classList.add('active');
+
+            // Reload with current game type
+            loadLeaderboard(currentGameType, period);
+        }
+
+        function displayLeaderboard(players) {
+            const content = document.getElementById('leaderboardContent');
+
+            content.innerHTML = players.map((player, index) => {
+
+                const imageUrl = player.image
+                    ? `${window.location.origin}${player.image}`
+                    : '/assets/characters/default.png';
+
+                const rankClass = index === 0 ? 'gold' : index === 1 ? 'silver' : index === 2 ? 'bronze' : '';
+                const rowClass = index === 0 ? 'top1' : index === 1 ? 'top2' : index === 2 ? 'top3' : '';
+                const avatarClass = index === 0 ? 'top1' : index === 1 ? 'top2' : index === 2 ? 'top3' : '';
+                const crown = index === 0 ? '<span class="crown">👑</span>' : '';
+
+                const winRate = player.totalGamesPlayed > 0
+                    ? ((player.totalWins / player.totalGamesPlayed) * 100).toFixed(1)
+                    : 0;
+
+                return `
+            <div class="leaderboard-row ${rowClass}">
+                <div class="rank ${rankClass}">#${index + 1}</div>
+
+                <div class="player-info">
+                   <div class="player-avatar ${avatarClass}">
+                        <img 
+                            src="${player.image ? `${window.location.origin}${player.image}` : `${window.location.origin}/assets/characters/default.png`}" 
+                             style="width:100%; height:100%; border-radius:50%; object-fit:cover;"
+                        />
+                        ${crown}
+                    </div>
+                    <div class="player-details">
+                        <div class="player-name">${player.username || 'Anonim'}</div>
+                        <span class="player-rank-badge">
+                            ${getRankIcon(player.currentRank)} ${player.currentRank} Lvl ${player.rankLevel}
+                        </span>
+                    </div>
+                </div>
+
+                <div class="stat">
+                    <div class="stat-label">XP</div>
+                    <div class="stat-value">${player.experiencePoints}</div>
+                </div>
+
+                <div class="stat">
+                    <div class="stat-label">Qazanc</div>
+                    <div class="stat-value earnings">${(player.totalEarnings || 0).toFixed(2)} ₼</div>
+                </div>
+
+                <div class="stat">
+                    <div class="stat-label">Oyunlar</div>
+                    <div class="stat-value">${player.totalGamesPlayed} / ${player.totalWins}</div>
+                </div>
+
+                <div class="stat">
+                    <div class="stat-label">Qalib %</div>
+                    <div class="stat-value winrate">${winRate}%</div>
+                </div>
+            </div>
+        `;
+            }).join('');
+        }
+
+        function getRankIcon(rank) {
+            const icons = {
+                'Beginner': '🥉',
+                'Bronze': '🥉',
+                'Silver': '🥈',
+                'Gold': '🥇',
+                'Platinum': '💎',
+                'Diamond': '💠',
+                'Master': '👑',
+                'Grandmaster': '🏆'
+            };
+            return icons[rank] || '🎮';
+        }
+
+        // Load all games leaderboard on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            loadLeaderboard('all', 'alltime', document.querySelector('.game-btn'));
+        });
+    </script>
+</body>
+</html>

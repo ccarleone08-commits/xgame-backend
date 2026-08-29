@@ -1,0 +1,14 @@
+.git
+.github
+.vs
+**/bin
+**/obj
+**/*.user
+**/*.suo
+**/*.lscache
+artifacts
+**/appsettings.Development.json
+**/wwwroot/uploads
+**/uploads
+*.md
+Dockerfile

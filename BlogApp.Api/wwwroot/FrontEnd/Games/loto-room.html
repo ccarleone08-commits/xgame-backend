@@ -1,0 +1,331 @@
+﻿<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>10 Line Loto - Otaqlar</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: linear-gradient(180deg, #2d1b69 0%, #1a0f3d 100%);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+            .header h1 {
+                font-size: 48px;
+                font-weight: 900;
+                background: linear-gradient(135deg, #ffd166 0%, #ff9a3c 100%);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                margin-bottom: 10px;
+            }
+
+        .balance-display {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 12px 24px;
+            border-radius: 50px;
+            font-size: 20px;
+            font-weight: 700;
+            margin-top: 10px;
+        }
+
+        .rooms-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+        }
+
+        .room-card {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.05));
+            border: 2px solid rgba(255, 209, 102, 0.3);
+            border-radius: 20px;
+            padding: 24px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+            .room-card:hover {
+                transform: translateY(-8px);
+                box-shadow: 0 20px 40px rgba(255, 209, 102, 0.3);
+                border-color: #ffd166;
+            }
+
+            .room-card.playing {
+                border-color: #ff6b6b;
+                background: linear-gradient(135deg, rgba(255, 107, 107, 0.2), rgba(255, 107, 107, 0.05));
+            }
+
+        .room-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .entry-fee {
+            font-size: 36px;
+            font-weight: 900;
+            color: #ffd166;
+        }
+
+        .status-badge {
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .badge-waiting {
+            background: linear-gradient(135deg, #ffd166, #ffb703);
+            color: #000;
+        }
+
+        .badge-playing {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a6f);
+            color: #fff;
+        }
+
+        .jackpot-display {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 16px;
+            border-radius: 12px;
+            text-align: center;
+            margin-bottom: 16px;
+        }
+
+        .jackpot-label {
+            font-size: 12px;
+            color: #ffd166;
+            margin-bottom: 4px;
+        }
+
+        .jackpot-amount {
+            font-size: 28px;
+            font-weight: 900;
+            color: #fff;
+        }
+
+        .room-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .info-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .info-label {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 4px;
+        }
+
+        .info-value {
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .timer-bar {
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            margin-top: 12px;
+            overflow: hidden;
+        }
+
+        .timer-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ffd166, #ff9a3c);
+            transition: width 1s linear;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 60px;
+            font-size: 18px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🎲 10 LINE LOTO</h1>
+        <div class="balance-display">
+            💰 <span id="userBalance">0</span> ₼
+        </div>
+    </div>
+
+    <div id="roomsContainer" class="rooms-container">
+        <div class="loading pulse">Otaqlar yüklənir...</div>
+    </div>
+
+    <script>
+        let connection = null;
+        let userBalance = 0;
+        let updateInterval = null;
+
+        function getToken() {
+            const raw = document.cookie
+                .split("; ")
+                .find(row => row.startsWith("AuthToken="))
+                ?.split("=")[1];
+            if (!raw) return "";
+            let token = decodeURIComponent(raw).trim();
+            if (token.endsWith(".")) token = token.slice(0, -1);
+            return token;
+        }
+
+        function createConnection() {
+            connection = new signalR.HubConnectionBuilder()
+                .withUrl("/lotoHub", {
+                    accessTokenFactory: () => getToken()
+                })
+                .withAutomaticReconnect()
+                .configureLogging(signalR.LogLevel.Information)
+                .build();
+
+            setupHandlers();
+            return connection;
+        }
+
+        function setupHandlers() {
+            connection.on("UserData", (data) => {
+                userBalance = data.balance;
+                document.getElementById("userBalance").textContent = data.balance.toFixed(2);
+            });
+
+            connection.on("RoomListUpdated", () => {
+                loadRooms();
+            });
+        }
+
+        async function loadRooms() {
+            try {
+                const rooms = await connection.invoke("GetRoomList");
+                renderRooms(rooms);
+            } catch (err) {
+                console.error("Load rooms error:", err);
+            }
+        }
+
+        function renderRooms(rooms) {
+            const container = document.getElementById("roomsContainer");
+            container.innerHTML = "";
+
+            if (!rooms || rooms.length === 0) {
+                container.innerHTML = '<div class="loading">Otaqlar yüklənir...</div>';
+                return;
+            }
+
+            rooms.forEach(room => {
+                const card = document.createElement("div");
+                card.className = `room-card ${room.isGameStarted ? 'playing' : ''}`;
+
+                const statusBadge = room.isGameStarted
+                    ? '<span class="status-badge badge-playing">▶ Oynayır</span>'
+                    : '<span class="status-badge badge-waiting">Gözləyir</span>';
+
+                const timePercent = room.isGameStarted ? 0 : (room.timeRemaining / room.timerSeconds) * 100;
+
+                card.innerHTML = `
+                        <div class="room-header">
+                            <div class="entry-fee">${room.entryFee.toFixed(2)} ₼</div>
+                            ${statusBadge}
+                        </div>
+
+                        <div class="jackpot-display">
+                            <div class="jackpot-label">JACKPOT</div>
+                            <div class="jackpot-amount">${room.jackpotPool.toFixed(2)} ₼</div>
+                        </div>
+
+                        <div class="room-info">
+                            <div class="info-item">
+                                <div class="info-label">OYUNÇULAR</div>
+                                <div class="info-value">${room.playerCount}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">VAXT</div>
+                                <div class="info-value">${room.isGameStarted ? 'BAŞLAYIB' : room.timeRemaining + 's'}</div>
+                            </div>
+                        </div>
+
+                        ${!room.isGameStarted ? `
+                            <div class="timer-bar">
+                                <div class="timer-fill" style="width: ${timePercent}%"></div>
+                            </div>
+                        ` : ''}
+                    `;
+
+                card.addEventListener("click", () => {
+                    window.location.href = `/FrontEnd/Games/loto.html?roomId=${room.roomId}`;
+                });
+
+                container.appendChild(card);
+            });
+        }
+
+        async function init() {
+            try {
+                connection = createConnection();
+                await connection.start();
+                console.log("✅ Connected");
+
+                await loadRooms();
+
+                // Her 1 saniyədə yenilə
+                updateInterval = setInterval(loadRooms, 1000);
+
+               
+
+            } catch (err) {
+                console.error("Connection error:", err);
+                document.getElementById("roomsContainer").innerHTML =
+                    '<div class="loading">❌ Bağlantı xətası</div>';
+            }
+        }
+
+        init();
+    </script>
+</body>
+</html>

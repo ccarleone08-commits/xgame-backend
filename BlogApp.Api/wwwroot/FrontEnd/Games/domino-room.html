@@ -1,0 +1,415 @@
+﻿<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Domino - Oyun Seçimi</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(135deg, #0f172a, #1e293b);
+            color: #f1f5f9;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: rgba(30, 41, 59, 0.8);
+            backdrop-filter: blur(10px);
+            padding: 20px 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #10b981;
+        }
+
+        .balance {
+            font-size: 18px;
+            color: #fbbf24;
+            font-weight: 600;
+        }
+
+        .category-section {
+            margin-bottom: 40px;
+        }
+
+        .category-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: #10b981;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .lobby-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
+        }
+
+        .lobby-card {
+            background: linear-gradient(145deg, rgba(30, 41, 59, 0.9), rgba(15, 23, 42, 0.9));
+            border: 2px solid rgba(16, 185, 129, 0.2);
+            border-radius: 15px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+            .lobby-card::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 4px;
+                background: linear-gradient(90deg, #10b981, #059669);
+                transform: scaleX(0);
+                transition: transform 0.3s;
+            }
+
+            .lobby-card:hover {
+                transform: translateY(-5px);
+                border-color: #10b981;
+                box-shadow: 0 15px 40px rgba(16, 185, 129, 0.3);
+            }
+
+                .lobby-card:hover::before {
+                    transform: scaleX(1);
+                }
+
+        .lobby-header {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: #f1f5f9;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .lobby-info {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 15px;
+            color: #94a3b8;
+            font-size: 14px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+        }
+
+        .info-label {
+            font-weight: 600;
+        }
+
+        .info-value {
+            color: #f1f5f9;
+            font-weight: 700;
+        }
+
+        .waiting-badge {
+            background: rgba(251, 191, 36, 0.2);
+            color: #fbbf24;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #10b981, #059669);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+            .btn:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4);
+            }
+
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            font-weight: 600;
+            z-index: 1000;
+            box-shadow: 0 10px 30px rgba(239, 68, 68, 0.4);
+            animation: slideIn 0.3s;
+        }
+
+            .toast.success {
+                background: linear-gradient(135deg, #10b981, #059669);
+            }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(100px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #64748b;
+            padding: 40px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-title">🎯 Domino Lobbies</div>
+            <div class="balance">💰 <span id="userBalance">0</span> coin</div>
+        </div>
+
+        <div id="categoriesContainer"></div>
+    </div>
+
+    <script>
+        let connection = null;
+        let userBalance = 0;
+
+        function getToken() {
+            const raw = document.cookie.split("; ").find(row => row.startsWith("AuthToken="))?.split("=")[1];
+            if (!raw) return "";
+            let token = decodeURIComponent(raw).trim();
+            if (token.endsWith(".")) token = token.slice(0, -1);
+            return token;
+        }
+
+        function showToast(msg, success = false) {
+            const toast = document.createElement('div');
+            toast.className = success ? 'toast success' : 'toast';
+            toast.textContent = msg;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3500);
+        }
+
+        function setUserBalance(balance) {
+            const numericBalance = Number(balance);
+            if (!Number.isFinite(numericBalance)) return;
+            userBalance = numericBalance;
+            document.getElementById('userBalance').textContent = Number.isInteger(numericBalance)
+                ? numericBalance.toString()
+                : numericBalance.toFixed(2);
+        }
+
+        function createConnection() {
+            connection = new signalR.HubConnectionBuilder()
+                .withUrl("/dominoHub", { accessTokenFactory: () => getToken() })
+                .withAutomaticReconnect()
+                .build();
+
+            connection.on("UserData", (data) => {
+                setUserBalance(data.balance);
+            });
+
+            connection.on("UpdateBalance", (balance) => {
+                setUserBalance(balance);
+            });
+
+            connection.on("BalanceUpdated", (balance) => {
+                setUserBalance(balance);
+            });
+
+            connection.on("SilentRoomClosed", (data) => {
+                if (data?.balance !== undefined) {
+                    setUserBalance(data.balance);
+                }
+                loadLobbies();
+            });
+
+            connection.onreconnected(() => {
+                loadLobbies();
+            });
+
+            connection.onclose(() => {
+                showToast("Server bağlantısı kəsildi");
+            });
+
+            return connection;
+        }
+
+        async function loadLobbies() {
+            try {
+                const lobbies = await connection.invoke("GetAvailableLobbies");
+                displayLobbies(lobbies);
+            } catch (err) {
+                console.error("Load lobbies error:", err);
+            }
+        }
+
+        function displayLobbies(lobbies) {
+            const container = document.getElementById('categoriesContainer');
+
+            if (!lobbies || lobbies.length === 0) {
+                container.innerHTML = '<div class="empty-state">Heç bir lobby yoxdur</div>';
+                return;
+            }
+
+            // Kateqoriyalara ayır
+            const classic101 = lobbies.filter(l => l.gameType === "Classic101");
+            const quick5 = lobbies.filter(l => l.gameType === "Quick5");
+            const allFives = lobbies.filter(l => l.gameType === "AllFives");
+
+            container.innerHTML = '';
+
+            // Classic 101
+            if (classic101.length > 0) {
+                container.innerHTML += `
+                        <div class="category-section">
+                            <div class="category-title">🎯 Klassik 101</div>
+                            <div class="lobby-grid">${renderLobbies(classic101)}</div>
+                        </div>
+                    `;
+            }
+
+            // Quick 5
+            if (quick5.length > 0) {
+                container.innerHTML += `
+                        <div class="category-section">
+                            <div class="category-title">⚡ Sürətli 5 Daş</div>
+                            <div class="lobby-grid">${renderLobbies(quick5)}</div>
+                        </div>
+                    `;
+            }
+
+            // All Fives
+            if (allFives.length > 0) {
+                container.innerHTML += `
+                        <div class="category-section">
+                            <div class="category-title">🔥 All Fives</div>
+                            <div class="lobby-grid">${renderLobbies(allFives)}</div>
+                        </div>
+                    `;
+            }
+        }
+
+        function renderLobbies(lobbies) {
+            return lobbies.map(lobby => {
+                const icon = lobby.gameType === "Classic101" ? "🎯"
+                    : lobby.gameType === "Quick5" ? "⚡"
+                        : "🔥";
+
+                return `
+                        <div class="lobby-card" onclick='joinLobby(${JSON.stringify(lobby)})'>
+                            <div class="lobby-header">
+                                ${icon} ${lobby.playerCount} Nəfərlik
+                            </div>
+
+                            ${lobby.waitingPlayers > 0
+                        ? `<div class="waiting-badge">⏳ ${lobby.waitingPlayers} nəfər gözləyir</div>`
+                        : ''}
+
+                            <div class="lobby-info">
+                                <div class="info-row">
+                                    <span class="info-label">Hədəf:</span>
+                                    <span class="info-value">${lobby.scoreToWin} xal</span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-label">Giriş:</span>
+                                    <span class="info-value">${lobby.entryFee} coin</span>
+                                </div>
+                            </div>
+
+                            <button class="btn">Qoşul</button>
+                        </div>
+                    `;
+            }).join('');
+        }
+
+        async function joinLobby(lobby) {
+            if (userBalance < lobby.entryFee) {
+                showToast(`Kifayət qədər balans yoxdur! Lazım: ${lobby.entryFee} coin`);
+                return;
+            }
+
+            try {
+                const result = await connection.invoke("JoinLobby",
+                    lobby.gameType,
+                    lobby.playerCount,
+                    lobby.scoreToWin,
+                    lobby.entryFee
+                );
+
+                if (result.success) {
+                    if (result.balance !== undefined) {
+                        setUserBalance(result.balance);
+                    }
+                    showToast("Lobby-yə qoşuldunuz! Oyunçular gözlənilir...", true);
+                    setTimeout(() => {
+                        window.location.href = `/FrontEnd/Games/domino.html?roomId=${result.roomId}&userId=${result.userId}`;
+                    }, 1000);
+                } else {
+                    showToast(result.message);
+                }
+            } catch (err) {
+                console.error("Join lobby error:", err);
+                showToast("Lobby-yə qoşulmaq alınmadı");
+            }
+        }
+
+        // 3 saniyədə bir yenilə
+        setInterval(() => loadLobbies(), 3000);
+
+        (async function init() {
+            try {
+                connection = createConnection();
+                await connection.start();
+                await loadLobbies();
+            } catch (err) {
+                console.error("Connection error:", err);
+                showToast("Serverə qoşulmaq alınmadı");
+            }
+        })();
+    </script>
+</body>
+</html>

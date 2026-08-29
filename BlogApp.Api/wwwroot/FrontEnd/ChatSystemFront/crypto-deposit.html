@@ -1,0 +1,640 @@
+<!doctype html>
+<html lang="az">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Coin al</title>
+    <style>
+        :root {
+            color-scheme: light;
+            --bg: #f5f7fb;
+            --panel: #ffffff;
+            --text: #172033;
+            --muted: #6b7280;
+            --line: #dfe4ee;
+            --primary: #0f766e;
+            --primary-dark: #115e59;
+            --danger: #b42318;
+            --ok: #167647;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        .shell {
+            width: min(1040px, calc(100% - 32px));
+            margin: 0 auto;
+            padding: 28px 0 40px;
+        }
+
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .topbar h1 {
+            margin: 0;
+            font-size: 28px;
+            line-height: 1.2;
+        }
+
+        .back-link {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 700;
+        }
+
+        .summary {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+
+        .metric,
+        .status-panel {
+            background: var(--panel);
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            padding: 16px;
+        }
+
+        .metric-label {
+            color: var(--muted);
+            font-size: 13px;
+            margin-bottom: 8px;
+        }
+
+        .metric-value {
+            font-size: 24px;
+            font-weight: 800;
+        }
+
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: end;
+            gap: 16px;
+            margin: 22px 0 12px;
+        }
+
+        .toolbar h2 {
+            margin: 0;
+            font-size: 20px;
+        }
+
+        .field {
+            display: grid;
+            gap: 6px;
+            min-width: 190px;
+        }
+
+        label {
+            font-size: 13px;
+            color: var(--muted);
+            font-weight: 700;
+        }
+
+        select {
+            height: 40px;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            padding: 0 10px;
+            background: #fff;
+            color: var(--text);
+        }
+
+        .buy-panel {
+            background: var(--panel);
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            padding: 18px;
+            display: grid;
+            gap: 14px;
+        }
+
+        .hint {
+            color: var(--muted);
+            font-size: 15px;
+        }
+
+        .amount-row {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 180px;
+            gap: 12px;
+            align-items: end;
+        }
+
+        input {
+            width: 100%;
+            height: 44px;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            padding: 0 12px;
+            font-size: 18px;
+            color: var(--text);
+        }
+
+        .preview {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 10px;
+        }
+
+        .preview-item {
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            padding: 12px;
+            background: #fafafa;
+        }
+
+        .preview-item span {
+            display: block;
+            color: var(--muted);
+            font-size: 12px;
+            margin-bottom: 6px;
+        }
+
+        .preview-item strong {
+            font-size: 18px;
+        }
+
+        button {
+            height: 42px;
+            border: 0;
+            border-radius: 8px;
+            background: var(--primary);
+            color: white;
+            font-weight: 800;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: var(--primary-dark);
+        }
+
+        button:disabled {
+            cursor: not-allowed;
+            opacity: 0.62;
+        }
+
+        .message {
+            margin: 12px 0;
+            padding: 12px 14px;
+            border-radius: 8px;
+            border: 1px solid var(--line);
+            background: #fff;
+            color: var(--muted);
+        }
+
+        .message.error {
+            border-color: #f2b8b5;
+            color: var(--danger);
+            background: #fff7f6;
+        }
+
+        .message.ok {
+            border-color: #abefc6;
+            color: var(--ok);
+            background: #f6fef9;
+        }
+
+        .status-panel {
+            display: none;
+            margin-bottom: 18px;
+        }
+
+        .status-panel.active {
+            display: block;
+        }
+
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .status-item {
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            padding: 12px;
+            background: #fafafa;
+        }
+
+        .status-item span {
+            display: block;
+            color: var(--muted);
+            font-size: 12px;
+            margin-bottom: 6px;
+        }
+
+        .status-item strong {
+            font-size: 14px;
+        }
+
+        @media (max-width: 760px) {
+            .topbar,
+            .toolbar {
+                align-items: stretch;
+                flex-direction: column;
+            }
+
+            .summary,
+            .preview,
+            .status-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .amount-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main class="shell">
+        <div class="topbar">
+            <h1>Coin al</h1>
+            <a class="back-link" href="../index.html">Ana səhifə</a>
+        </div>
+
+        <section class="summary">
+            <div class="metric">
+                <div class="metric-label">Cari balans</div>
+                <div class="metric-value" id="balance">...</div>
+            </div>
+            <div class="metric">
+                <div class="metric-label">Ödəniş üsulu</div>
+                <div class="metric-value">NOWPayments</div>
+            </div>
+        </section>
+
+        <section class="status-panel" id="statusPanel">
+            <strong>Son ödəniş statusu</strong>
+            <div class="status-grid">
+                <div class="status-item">
+                    <span>Status</span>
+                    <strong id="paymentStatus">...</strong>
+                </div>
+                <div class="status-item">
+                    <span>Coin</span>
+                    <strong id="paymentCoin">...</strong>
+                </div>
+                <div class="status-item">
+                    <span>Yükləndi</span>
+                    <strong id="paymentGranted">...</strong>
+                </div>
+                <div class="status-item">
+                    <span>Qiymət</span>
+                    <strong id="paymentPrice">...</strong>
+                </div>
+            </div>
+        </section>
+
+        <div class="toolbar">
+            <h2>Məbləğ</h2>
+            <div class="field">
+                <label for="payCurrency">Kripto valyuta</label>
+                <select id="payCurrency">
+                    <option value="">NOWPayments seçsin</option>
+                    <option value="btc">BTC</option>
+                    <option value="eth">ETH</option>
+                    <option value="usdt">USDT</option>
+                    <option value="usdttrc20">USDT TRC20</option>
+                    <option value="usdterc20">USDT ERC20</option>
+                    <option value="usdtbsc">USDT BSC</option>
+                    <option value="usdtmatic">USDT Polygon</option>
+                    <option value="usdtsol">USDT Solana</option>
+                    <option value="usdc">USDC</option>
+                    <option value="usdcmatic">USDC Polygon</option>
+                    <option value="usdcsol">USDC Solana</option>
+                    <option value="tusd">TUSD</option>
+                    <option value="tusdtrc20">TUSD TRC20</option>
+                    <option value="dai">DAI</option>
+                    <option value="usddtrc20">USDD TRC20</option>
+                    <option value="busd">BUSD</option>
+                    <option value="trx">TRX</option>
+                    <option value="ltc">LTC</option>
+                    <option value="doge">DOGE</option>
+                    <option value="xmr">XMR</option>
+                    <option value="xno">XNO</option>
+                    <option value="bnbbsc">BNB BSC</option>
+                    <option value="bnb">BNB</option>
+                    <option value="maticmainnet">MATIC Polygon</option>
+                    <option value="sol">SOL</option>
+                    <option value="xrp">XRP</option>
+                    <option value="xlm">XLM</option>
+                    <option value="ada">ADA</option>
+                    <option value="ton">TON</option>
+                    <option value="bch">BCH</option>
+                    <option value="dash">DASH</option>
+                    <option value="vet">VET</option>
+                    <option value="uni">UNI</option>
+                    <option value="dgb">DGB</option>
+                    <option value="dot">DOT</option>
+                    <option value="atom">ATOM</option>
+                    <option value="near">NEAR</option>
+                    <option value="algo">ALGO</option>
+                    <option value="zec">ZEC</option>
+                    <option value="xvg">XVG</option>
+                    <option value="zen">ZEN</option>
+                    <option value="etc">ETC</option>
+                    <option value="shib">SHIB</option>
+                    <option value="link">LINK</option>
+                    <option value="avaxc">AVAX C-Chain</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="message" id="message">1 coin = 1 USD/USDT. Məbləği daxil edib ödəniş yaradın.</div>
+        <section class="buy-panel">
+            <div class="amount-row">
+                <div class="field">
+                    <label for="coinAmount">Coin miqdarı</label>
+                    <input id="coinAmount" type="number" min="1" step="1" value="10" inputmode="decimal" />
+                </div>
+                <button type="button" id="buyButton">Ödəniş yarat</button>
+            </div>
+            <div class="preview">
+                <div class="preview-item">
+                    <span>Alınacaq coin</span>
+                    <strong id="previewCoin">10</strong>
+                </div>
+                <div class="preview-item">
+                    <span>Ödəniləcək məbləğ</span>
+                    <strong id="previewPrice">10.00 USD</strong>
+                </div>
+                <div class="preview-item">
+                    <span>Minimum</span>
+                    <strong id="previewMinimum">Kripto seçin</strong>
+                </div>
+            </div>
+            <div class="hint">Minimum 1 coin. Ödəniş səhifəsində seçdiyiniz kripto valyuta və network eyni olmalıdır.</div>
+        </section>
+    </main>
+
+    <script>
+        const API_BASE = "/api";
+        const messageEl = document.getElementById("message");
+        const balanceEl = document.getElementById("balance");
+        const payCurrencyEl = document.getElementById("payCurrency");
+        const coinAmountEl = document.getElementById("coinAmount");
+        const buyButton = document.getElementById("buyButton");
+        const previewMinimumEl = document.getElementById("previewMinimum");
+        let minimumCoinAmount = null;
+        let minimumPayAmount = null;
+        let minimumLoading = false;
+        let minimumUnavailable = false;
+        let minimumRequestId = 0;
+        let isSubmitting = false;
+        let pollingTimer = null;
+        let currentPaymentId = null;
+
+        function getToken() {
+            return document.cookie
+                .split("; ")
+                .find(row => row.startsWith("AuthToken="))
+                ?.split("=")[1] || "";
+        }
+
+        function authHeaders(extra = {}) {
+            const token = getToken();
+            return token ? { ...extra, Authorization: `Bearer ${token}` } : extra;
+        }
+
+        function setMessage(text, type = "") {
+            messageEl.textContent = text;
+            messageEl.className = `message ${type}`.trim();
+        }
+
+        async function api(path, options = {}) {
+            const response = await fetch(`${API_BASE}${path}`, {
+                credentials: "include",
+                ...options
+            });
+
+            if (!response.ok) {
+                const contentType = response.headers.get("content-type") || "";
+                const errorBody = contentType.includes("application/json")
+                    ? await response.json()
+                    : await response.text();
+                const message =
+                    typeof errorBody === "string"
+                        ? errorBody
+                        : [errorBody?.message || errorBody?.title || `Sorğu uğursuz oldu: ${response.status}`, errorBody?.detail]
+                            .filter(Boolean)
+                            .join(" ");
+                throw new Error(message);
+            }
+
+            return response.json();
+        }
+
+        async function loadBalance() {
+            try {
+                const data = await api("/wallet/balance", {
+                    headers: authHeaders()
+                });
+                balanceEl.textContent = Number(data.balance || 0).toFixed(2);
+            } catch {
+                balanceEl.textContent = "Giriş tələb olunur";
+            }
+        }
+
+        function getCoinAmount() {
+            return Number(coinAmountEl.value);
+        }
+
+        function updatePreview() {
+            const amount = getCoinAmount();
+            const safeAmount = Number.isFinite(amount) && amount > 0 ? amount : 0;
+            document.getElementById("previewCoin").textContent = safeAmount.toFixed(0);
+            document.getElementById("previewPrice").textContent = `${safeAmount.toFixed(2)} USD`;
+
+            const hasSelectedCurrency = Boolean(payCurrencyEl.value);
+            const isBelowMinimum = minimumCoinAmount !== null && safeAmount < minimumCoinAmount;
+            buyButton.disabled = isSubmitting || minimumLoading || minimumUnavailable || isBelowMinimum;
+
+            if (minimumLoading) {
+                previewMinimumEl.textContent = "Yüklənir...";
+            } else if (minimumCoinAmount !== null) {
+                const payCurrency = payCurrencyEl.value.toUpperCase();
+                const cryptoText = minimumPayAmount ? ` / ${formatCrypto(minimumPayAmount)} ${payCurrency}` : "";
+                previewMinimumEl.textContent = `${minimumCoinAmount.toFixed(2)} coin${cryptoText}`;
+            } else if (minimumUnavailable) {
+                previewMinimumEl.textContent = "Hazırda əlçatan deyil";
+            } else {
+                previewMinimumEl.textContent = "Kripto seçin";
+            }
+
+            if (isBelowMinimum) {
+                setMessage(`Seçilən kripto üçün minimum ${minimumCoinAmount.toFixed(2)} coindir.`, "error");
+            } else if (minimumUnavailable && hasSelectedCurrency) {
+                setMessage("Minimum məbləğ hazırda oxuna bilmir. Zəhmət olmasa bir az sonra yenidən yoxlayın.", "error");
+            } else if (messageEl.classList.contains("error") && messageEl.textContent.includes("minimum")) {
+                setMessage("1 coin = 1 USD/USDT. Məbləği daxil edib ödəniş yaradın.");
+            }
+        }
+
+        async function loadMinimumAmount() {
+            const payCurrency = payCurrencyEl.value;
+            const requestId = ++minimumRequestId;
+            minimumCoinAmount = null;
+            minimumPayAmount = null;
+            minimumUnavailable = false;
+
+            if (!payCurrency) {
+                minimumLoading = false;
+                updatePreview();
+                return;
+            }
+
+            minimumLoading = true;
+            updatePreview();
+
+            try {
+                const data = await api(`/payments/nowpayments/min-amount?payCurrency=${encodeURIComponent(payCurrency)}`, {
+                    headers: authHeaders()
+                });
+                if (requestId !== minimumRequestId) return;
+                minimumCoinAmount = Number(data.minimumCoinAmount || data.minimumPriceAmount || 0);
+                minimumPayAmount = Number(data.minimumPayAmount || 0);
+                setMessage(`${payCurrency.toUpperCase()} üçün minimum ${minimumCoinAmount.toFixed(2)} coin.`, "ok");
+            } catch (error) {
+                if (requestId !== minimumRequestId) return;
+                minimumCoinAmount = null;
+                minimumPayAmount = null;
+                minimumUnavailable = true;
+                setMessage(`Minimum məbləğ oxunmadı: ${error.message}`, "error");
+            } finally {
+                if (requestId !== minimumRequestId) return;
+                minimumLoading = false;
+                updatePreview();
+            }
+        }
+
+        async function buyCoins() {
+            if (isSubmitting) return;
+
+            const coinAmount = getCoinAmount();
+            if (!Number.isFinite(coinAmount) || coinAmount < 1) {
+                setMessage("Minimum 1 coin daxil edin.", "error");
+                return;
+            }
+
+            if (payCurrencyEl.value && minimumUnavailable) {
+                setMessage("Minimum məbləğ təsdiqlənmədən ödəniş yaratmaq olmaz.", "error");
+                return;
+            }
+
+            if (minimumCoinAmount !== null && coinAmount < minimumCoinAmount) {
+                setMessage(`Seçilən kripto üçün minimum ${minimumCoinAmount.toFixed(2)} coindir.`, "error");
+                return;
+            }
+
+            isSubmitting = true;
+            buyButton.disabled = true;
+            buyButton.textContent = "Yaradılır...";
+            try {
+                const data = await api("/payments/nowpayments/create", {
+                    method: "POST",
+                    headers: authHeaders({ "Content-Type": "application/json" }),
+                    body: JSON.stringify({
+                        coinAmount,
+                        payCurrency: payCurrencyEl.value || null
+                    })
+                });
+
+                localStorage.setItem("lastNowPaymentId", String(data.paymentId));
+                window.location.href = data.paymentUrl;
+            } catch (error) {
+                isSubmitting = false;
+                buyButton.textContent = "Ödəniş yarat";
+                updatePreview();
+                setMessage(`Ödəniş yaradıla bilmədi: ${error.message}`, "error");
+            }
+        }
+
+        async function loadLastPaymentStatus() {
+            const query = new URLSearchParams(window.location.search);
+            const urlPaymentId = query.get("paymentId");
+            const nowPaymentsPaymentId = query.get("nowPaymentsPaymentId");
+            const paymentId = urlPaymentId || localStorage.getItem("lastNowPaymentId");
+
+            if (!paymentId) return;
+
+            currentPaymentId = paymentId;
+            document.getElementById("statusPanel").classList.add("active");
+            let refreshAttempted = false;
+            const refreshPath = nowPaymentsPaymentId
+                ? `/payments/${paymentId}/refresh?nowPaymentsPaymentId=${encodeURIComponent(nowPaymentsPaymentId)}`
+                : `/payments/${paymentId}/refresh`;
+
+            async function poll() {
+                try {
+                    const data = refreshAttempted
+                        ? await api(`/payments/${paymentId}/status`, {
+                            headers: authHeaders()
+                        })
+                        : await api(refreshPath, {
+                            method: "POST",
+                            headers: authHeaders()
+                        });
+                    refreshAttempted = true;
+
+                    document.getElementById("paymentStatus").textContent = data.status;
+                    document.getElementById("paymentCoin").textContent = Number(data.coinAmount || 0).toFixed(0);
+                    document.getElementById("paymentGranted").textContent = data.coinsGranted ? "Bəli" : "Xeyr";
+                    document.getElementById("paymentPrice").textContent =
+                        `${Number(data.priceAmount || 0).toFixed(2)} ${String(data.priceCurrency).toUpperCase()}`;
+
+                    if (data.coinsGranted || ["failed", "expired", "cancelled"].includes(String(data.status).toLowerCase())) {
+                        clearInterval(pollingTimer);
+                        await loadBalance();
+                    }
+                } catch (error) {
+                    clearInterval(pollingTimer);
+                    setMessage(`Status oxunmadı: ${error.message}`, "error");
+                }
+            }
+
+            await poll();
+            pollingTimer = setInterval(poll, 3000);
+        }
+        function escapeHtml(value) {
+            const div = document.createElement("div");
+            div.textContent = value ?? "";
+            return div.innerHTML;
+        }
+
+        function formatCrypto(value) {
+            return Number(value || 0).toLocaleString("en-US", {
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 8
+            });
+        }
+
+        coinAmountEl.addEventListener("input", updatePreview);
+        payCurrencyEl.addEventListener("change", loadMinimumAmount);
+        buyButton.addEventListener("click", buyCoins);
+
+        loadBalance();
+        updatePreview();
+        loadMinimumAmount();
+        loadLastPaymentStatus();
+    </script>
+</body>
+</html>

@@ -1,0 +1,565 @@
+﻿<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Withdraw</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Raleway:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --gold: #c9a84c;
+            --gold-light: #e8c97a;
+            --gold-dim: #8a6f2e;
+            --bg: #0a0f0d;
+            --surface: #111a15;
+            --surface2: #162019;
+            --border: rgba(201,168,76,0.18);
+            --text: #e8e0d0;
+            --text-dim: #8a8070;
+            --green: #1a4a2e;
+            --green-bright: #2d7a4f;
+            --red: #c0392b;
+            --radius: 14px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: var(--bg);
+            font-family: 'Raleway', sans-serif;
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            background-image: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(201,168,76,0.07) 0%, transparent 70%), repeating-linear-gradient(45deg, transparent, transparent 40px, rgba(201,168,76,0.015) 40px, rgba(201,168,76,0.015) 41px);
+        }
+
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            width: 100%;
+            max-width: 500px;
+            overflow: hidden;
+            box-shadow: 0 30px 80px rgba(0,0,0,0.7), 0 0 0 1px rgba(201,168,76,0.08);
+            animation: fadeUp 0.6s cubic-bezier(.22,.68,0,1.2) both;
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card-header {
+            padding: 28px 32px 24px;
+            border-bottom: 1px solid var(--border);
+            background: linear-gradient(135deg, #111a15 0%, #0e1a12 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+            .card-header::before {
+                content: '';
+                position: absolute;
+                top: -40px;
+                right: -40px;
+                width: 140px;
+                height: 140px;
+                background: radial-gradient(circle, rgba(201,168,76,0.1) 0%, transparent 70%);
+            }
+
+        .header-top {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 6px;
+        }
+
+        .wallet-icon {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, #1a4a2e, #0e2a1a);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .header-title {
+            font-family: 'Cinzel', serif;
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--gold);
+            letter-spacing: 0.04em;
+        }
+
+        .balance-row {
+            margin-top: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .balance-label {
+            font-size: 11px;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .balance-amount {
+            font-family: 'Cinzel', serif;
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--gold-light);
+            text-shadow: 0 0 20px rgba(201,168,76,0.3);
+        }
+
+        .balance-currency {
+            font-size: 12px;
+            color: var(--gold-dim);
+            margin-left: 2px;
+        }
+
+        .card-body {
+            padding: 28px 32px;
+        }
+
+        .section-label {
+            font-family: 'Cinzel', serif;
+            font-size: 11px;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--gold-dim);
+            margin-bottom: 18px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-dim);
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .form-input {
+            width: 100%;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 13px 16px;
+            color: var(--text);
+            font-family: 'Raleway', sans-serif;
+            font-size: 15px;
+            outline: none;
+            transition: all 0.25s;
+        }
+
+            .form-input:focus {
+                border-color: var(--gold-dim);
+                box-shadow: 0 0 0 3px rgba(201,168,76,0.08);
+            }
+
+            .form-input::placeholder {
+                color: var(--text-dim);
+                font-size: 13px;
+            }
+
+        .amount-wrapper {
+            position: relative;
+        }
+
+        .amount-prefix {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gold-dim);
+            font-family: 'Cinzel', serif;
+            font-size: 14px;
+            pointer-events: none;
+        }
+
+        .amount-wrapper .form-input {
+            padding-left: 32px;
+        }
+
+        .quick-amounts {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .quick-btn {
+            flex: 1;
+            padding: 7px 4px;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-dim);
+            font-size: 12px;
+            font-family: 'Raleway', sans-serif;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+
+            .quick-btn:hover {
+                border-color: var(--gold-dim);
+                color: var(--gold);
+                background: rgba(201,168,76,0.06);
+            }
+
+        .info-box {
+            background: rgba(201,168,76,0.05);
+            border: 1px solid rgba(201,168,76,0.15);
+            border-radius: 10px;
+            padding: 12px 16px;
+            font-size: 12px;
+            color: var(--text-dim);
+            line-height: 1.6;
+            margin-bottom: 22px;
+        }
+
+            .info-box strong {
+                color: var(--gold-dim);
+            }
+
+        .submit-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #b8922a 0%, #c9a84c 50%, #b8922a 100%);
+            background-size: 200% 100%;
+            border: none;
+            border-radius: var(--radius);
+            color: #1a1000;
+            font-family: 'Cinzel', serif;
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            position: relative;
+            overflow: hidden;
+        }
+
+            .submit-btn:hover {
+                background-position: right center;
+                box-shadow: 0 6px 24px rgba(201,168,76,0.35);
+                transform: translateY(-1px);
+            }
+
+            .submit-btn.loading {
+                pointer-events: none;
+                opacity: 0.7;
+            }
+
+        .spinner {
+            display: none;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(26,16,0,0.3);
+            border-top-color: #1a1000;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .status-list {
+            margin-top: 28px;
+            border-top: 1px solid var(--border);
+            padding-top: 24px;
+        }
+
+        .status-title {
+            font-family: 'Cinzel', serif;
+            font-size: 11px;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--gold-dim);
+            margin-bottom: 14px;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 14px;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            margin-bottom: 8px;
+            animation: fadeUp 0.4s both;
+        }
+
+        .status-badge {
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            padding: 3px 8px;
+            border-radius: 5px;
+            flex-shrink: 0;
+        }
+
+        .badge-pending {
+            background: rgba(201,168,76,0.15);
+            color: var(--gold);
+        }
+
+        .badge-approved {
+            background: rgba(45,122,79,0.2);
+            color: #4ade80;
+        }
+
+        .badge-rejected {
+            background: rgba(192,57,43,0.2);
+            color: #f87171;
+        }
+
+        .status-info {
+            flex: 1;
+        }
+
+        .status-amount {
+            font-family: 'Cinzel', serif;
+            font-size: 14px;
+            color: var(--gold-light);
+        }
+
+        .status-wallet {
+            font-size: 10px;
+            color: var(--text-dim);
+            margin-top: 1px;
+            word-break: break-all;
+        }
+
+        .status-date {
+            font-size: 11px;
+            color: var(--text-dim);
+            margin-top: 2px;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px 18px;
+            font-size: 13px;
+            color: var(--text);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+            transform: translateY(80px);
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(.22,.68,0,1.2);
+            z-index: 999;
+            max-width: 300px;
+        }
+
+            .toast.show {
+                transform: translateY(0);
+                opacity: 1;
+            }
+
+            .toast.success {
+                border-color: var(--green-bright);
+            }
+
+            .toast.error {
+                border-color: var(--red);
+            }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="card-header">
+            <div class="header-top">
+                <div class="wallet-icon">↑</div>
+                <div>
+                    <div class="header-title">USDT Withdraw</div>
+                </div>
+            </div>
+            <div class="balance-row">
+                <span class="balance-label">Balans:</span>
+                <span class="balance-amount" id="balanceDisplay">—</span>
+                <span class="balance-currency">USDT</span>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="section-label">Çıxarış Sorğusu</div>
+            <div class="info-box">
+                <strong>⚠ Diqqət:</strong> Çıxarış sorğusu göndərdikdən sonra məbləğ balansınızdan
+                bloklanacaq. Admin və Bank təsdiqlədikdən sonra ödəniş həyata keçiriləcək.
+            </div>
+            <div class="form-group">
+                <label class="form-label">Məbləğ (USDT)</label>
+                <div class="amount-wrapper">
+                    <span class="amount-prefix">$</span>
+                    <input type="number" class="form-input" id="amountInput" placeholder="0.00" min="10" step="0.01">
+                </div>
+                <div class="quick-amounts">
+                    <button class="quick-btn" onclick="setAmount(50)">$50</button>
+                    <button class="quick-btn" onclick="setAmount(100)">$100</button>
+                    <button class="quick-btn" onclick="setAmount(250)">$250</button>
+                    <button class="quick-btn" onclick="setAmount(500)">$500</button>
+                    <button class="quick-btn" onclick="setAmount(1000)">$1000</button>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">USDT Cüzdan Ünvanı (TRC20)</label>
+                <input type="text" class="form-input" id="walletInput" placeholder="T...">
+            </div>
+            <button class="submit-btn" id="submitBtn" onclick="submitWithdraw()">
+                <span id="btnText">Çıxarış Sorğusu Göndər</span>
+                <div class="spinner" id="btnSpinner"></div>
+            </button>
+            <div class="status-list">
+                <div class="status-title">Son Sorğularım</div>
+                <div id="requestsList"></div>
+            </div>
+        </div>
+    </div>
+    <div class="toast" id="toast"></div>
+    <script>
+        const API_BASE = '/api';
+
+        function getToken() {
+            const match = document.cookie.match(/(?:^|;\s*)token=([^;]*)/);
+            return match ? decodeURIComponent(match[1]) : null;
+        }
+        function authHeaders(json = false) {
+            const h = {};
+            const token = getToken();
+            if (token) h['Authorization'] = `Bearer ${token}`;
+            if (json) h['Content-Type'] = 'application/json';
+            return h;
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            loadMyRequests();
+        });
+
+        function setAmount(val) {
+            document.getElementById('amountInput').value = val;
+        }
+
+        async function submitWithdraw() {
+            const amount = document.getElementById('amountInput').value;
+            const walletAddress = document.getElementById('walletInput').value.trim();
+            if (!amount || Number(amount) <= 0) { showToast('Məbləği daxil edin', 'error'); return; }
+            if (!walletAddress) { showToast('Cüzdan ünvanını daxil edin', 'error'); return; }
+
+            setLoading(true);
+            try {
+                const res = await fetch(`${API_BASE}/withdraw/request`, {
+                    method: 'POST',
+                    headers: authHeaders(true),
+                    body: JSON.stringify({ amount: Number(amount), walletAddress })
+                });
+                if (res.status === 401) { showToast('Sessiya bitib, yenidən daxil olun', 'error'); return; }
+                if (!res.ok) {
+                    const err = await res.json().catch(() => ({}));
+                    throw new Error(err.message || 'Sorğu göndərilmədi');
+                }
+                showToast('Sorğu göndərildi! Admin yoxlayacaq.', 'success');
+                document.getElementById('amountInput').value = '';
+                document.getElementById('walletInput').value = '';
+                loadMyRequests();
+            } catch (err) {
+                showToast(err.message, 'error');
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        async function loadMyRequests() {
+            try {
+                const res = await fetch(`${API_BASE}/withdraw/my-requests`, {
+                    headers: authHeaders()
+                });
+                if (res.status === 401) return;
+                if (!res.ok) throw new Error();
+                const data = await res.json();
+                renderRequests(data);
+            } catch {
+                renderRequests([]);
+            }
+        }
+
+        function renderRequests(list) {
+            const container = document.getElementById('requestsList');
+            if (!list.length) {
+                container.innerHTML = '<div style="font-size:13px;color:var(--text-dim);text-align:center;padding:12px">Sorğu yoxdur</div>';
+                return;
+            }
+            const statusMap = {
+                'Pending':         ['badge-pending',  '⏳ Gözlənilir'],
+                'WorkerApproved':  ['badge-pending',  '✓ Worker Qəbul'],
+                'WorkerRejected':  ['badge-rejected', '✗ Worker Rədd'],
+                'BankApproved':    ['badge-approved', '✓ Təsdiqləndi'],
+                'BankRejected':    ['badge-rejected', '✗ Bank Rədd'],
+            };
+            container.innerHTML = list.map(r => {
+                const [cls, label] = statusMap[r.statusText] ?? ['badge-pending', r.statusText];
+                const date = new Date(r.createDate).toLocaleDateString('az-AZ', {
+                    day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
+                });
+                return `
+                <div class="status-item">
+                  <div class="status-info">
+                    <div class="status-amount">$${parseFloat(r.amount).toFixed(2)}</div>
+                    <div class="status-wallet">${r.walletAddress}</div>
+                    <div class="status-date">${date} · #${r.id}</div>
+                  </div>
+                  <span class="status-badge ${cls}">${label}</span>
+                </div>`;
+            }).join('');
+        }
+
+        function setLoading(on) {
+            const btn = document.getElementById('submitBtn');
+            const btnText = document.getElementById('btnText');
+            const spinner = document.getElementById('btnSpinner');
+            btn.classList.toggle('loading', on);
+            btnText.style.display = on ? 'none' : 'block';
+            spinner.style.display = on ? 'block' : 'none';
+        }
+
+        function showToast(msg, type = '') {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.className = `toast ${type} show`;
+            setTimeout(() => t.classList.remove('show'), 3500);
+        }
+    </script>
+</body>
+</html>

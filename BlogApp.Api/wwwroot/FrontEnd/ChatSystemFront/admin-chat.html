@@ -1,0 +1,1073 @@
+﻿<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Sistemi</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .chat-container {
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+            display: flex;
+            background: #fff;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            height: 700px;
+        }
+
+            /* User view - Admin panel gizlənir */
+            .chat-container.user-view {
+                max-width: 700px;
+            }
+
+                .chat-container.user-view .users-panel {
+                    display: none;
+                }
+
+        /* Users List Panel */
+        .users-panel {
+            width: 300px;
+            background: #2c3e50;
+            color: white;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .panel-header {
+            padding: 20px;
+            background: #1a252f;
+            border-bottom: 1px solid #34495e;
+        }
+
+            .panel-header h3 {
+                font-size: 18px;
+                font-weight: 600;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+
+        .online-count {
+            background: #2ecc71;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .users-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px;
+        }
+
+        .user-item {
+            padding: 15px;
+            margin-bottom: 8px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            position: relative;
+        }
+
+            .user-item:hover {
+                background: rgba(255,255,255,0.1);
+                transform: translateX(5px);
+            }
+
+            .user-item.active {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+            }
+
+        .user-avatar {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .user-item.active .user-avatar {
+            background: white;
+            color: #667eea;
+        }
+
+        .user-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .user-name {
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .user-status {
+            font-size: 11px;
+            opacity: 0.7;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #2ecc71;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        .unread-badge {
+            background: #e74c3c;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+
+        /* Chat Window */
+        .chat-window {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #f8f9fa;
+        }
+
+        .chat-header {
+            padding: 20px 25px;
+            background: white;
+            border-bottom: 2px solid #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        /* Admin header style */
+        body:not(.user-mode) .chat-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .chat-header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .chat-header-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: white;
+            font-weight: bold;
+        }
+
+        body:not(.user-mode) .chat-header-avatar {
+            background: white;
+            color: #667eea;
+        }
+
+        .chat-header-info h3 {
+            font-size: 18px;
+            color: #2c3e50;
+            margin-bottom: 2px;
+        }
+
+        body:not(.user-mode) .chat-header-info h3 {
+            color: white;
+        }
+
+        .chat-header-info p {
+            font-size: 12px;
+            color: #95a5a6;
+        }
+
+        body:not(.user-mode) .chat-header-info p {
+            color: rgba(255,255,255,0.8);
+        }
+
+        .messages-container {
+            flex: 1;
+            padding: 25px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            background: linear-gradient(to bottom, #f8f9fa 0%, #ffffff 100%);
+        }
+
+        .message {
+            max-width: 70%;
+            padding: 14px 18px;
+            border-radius: 18px;
+            word-wrap: break-word;
+            animation: slideIn 0.3s ease;
+            position: relative;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.admin {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .message.user {
+            background: white;
+            color: #2c3e50;
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        /* User mode - rənglər əksinə */
+        .user-mode .message.admin {
+            background: white;
+            color: #2c3e50;
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .user-mode .message.user {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .message-sender {
+            font-size: 11px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            opacity: 0.8;
+        }
+
+        .message-text {
+            line-height: 1.5;
+            font-size: 14px;
+        }
+
+        .message-image {
+            max-width: 100%;
+            border-radius: 10px;
+            margin-top: 10px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+            .message-image:hover {
+                transform: scale(1.02);
+            }
+
+        .message-time {
+            font-size: 10px;
+            margin-top: 5px;
+            opacity: 0.6;
+        }
+
+        /* Typing Indicator */
+        .typing-indicator {
+            display: none;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 18px;
+            background: white;
+            border-radius: 18px;
+            max-width: 80px;
+            align-self: flex-start;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 10px;
+        }
+
+            .typing-indicator.show {
+                display: flex;
+            }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background: #95a5a6;
+            border-radius: 50%;
+            animation: typingBounce 1.4s infinite;
+        }
+
+            .typing-dot:nth-child(2) {
+                animation-delay: 0.2s;
+            }
+
+            .typing-dot:nth-child(3) {
+                animation-delay: 0.4s;
+            }
+
+        @keyframes typingBounce {
+            0%, 60%, 100% {
+                transform: translateY(0);
+            }
+
+            30% {
+                transform: translateY(-10px);
+            }
+        }
+
+        /* Typing Status Text */
+        .typing-status {
+            font-size: 11px;
+            color: #95a5a6;
+            font-style: italic;
+            margin-left: 5px;
+        }
+
+        /* Input Area */
+        .chat-input-area {
+            padding: 20px 25px;
+            background: white;
+            border-top: 2px solid #e9ecef;
+        }
+
+        .input-wrapper {
+            display: flex;
+            gap: 12px;
+            align-items: flex-end;
+        }
+
+        .input-controls {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        #messageInput {
+            width: 100%;
+            padding: 14px 18px;
+            border: 2px solid #e9ecef;
+            border-radius: 24px;
+            outline: none;
+            font-size: 14px;
+            resize: none;
+            font-family: inherit;
+            max-height: 120px;
+            transition: border-color 0.2s;
+        }
+
+            #messageInput:focus {
+                border-color: #667eea;
+            }
+
+        .attachment-preview {
+            display: flex;
+            gap: 10px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            align-items: center;
+        }
+
+            .attachment-preview img {
+                width: 70px;
+                height: 70px;
+                object-fit: cover;
+                border-radius: 8px;
+            }
+
+        .attachment-info {
+            flex: 1;
+            font-size: 13px;
+            color: #2c3e50;
+        }
+
+        .remove-btn {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+            line-height: 1;
+            transition: transform 0.2s;
+        }
+
+            .remove-btn:hover {
+                transform: scale(1.1);
+            }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 14px 22px;
+            border: none;
+            border-radius: 24px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-attach {
+            background: #95a5a6;
+            color: white;
+        }
+
+            .btn-attach:hover {
+                background: #7f8c8d;
+                transform: translateY(-2px);
+            }
+
+        .btn-send {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+            .btn-send:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+            }
+
+        #imageInput {
+            display: none;
+        }
+
+        /* Scrollbar */
+        .messages-container::-webkit-scrollbar,
+        .users-list::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .messages-container::-webkit-scrollbar-track,
+        .users-list::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .messages-container::-webkit-scrollbar-thumb {
+            background: #cbd5e0;
+            border-radius: 3px;
+        }
+
+        .users-list::-webkit-scrollbar-thumb {
+            background: #34495e;
+            border-radius: 3px;
+        }
+
+        /* Loading & Empty States */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #95a5a6;
+            font-size: 14px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #95a5a6;
+        }
+
+        .empty-state-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+
+        .no-selection {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: #95a5a6;
+            padding: 40px;
+        }
+
+        .no-selection-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .no-selection h3 {
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+
+        .no-selection p {
+            font-size: 14px;
+        }
+
+        /* Connection Status */
+        .connection-status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            border-radius: 24px;
+            font-size: 13px;
+            font-weight: 600;
+            background: #2ecc71;
+            color: white;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 1000;
+        }
+
+            .connection-status.disconnected {
+                background: #e74c3c;
+            }
+
+            .connection-status .status-indicator {
+                width: 10px;
+                height: 10px;
+                border-radius: 50%;
+                background: white;
+            }
+
+        /* Role Badge */
+        .role-badge {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            padding: 10px 20px;
+            border-radius: 24px;
+            font-size: 13px;
+            font-weight: 600;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="connection-status" id="connectionStatus">
+        <span class="status-indicator"></span>
+        Qoşulur...
+    </div>
+
+    <div class="role-badge" id="roleBadge">Yüklənir...</div>
+
+    <div class="chat-container" id="chatContainer">
+        <!-- Users Panel - yalnız Admin görür -->
+        <div class="users-panel" id="usersPanel">
+            <div class="panel-header">
+                <h3>
+                    👥 Online İstifadəçilər
+                    <span class="online-count" id="onlineCount">0</span>
+                </h3>
+            </div>
+            <div class="users-list" id="usersList">
+                <div class="loading">İstifadəçilər yüklənir...</div>
+            </div>
+        </div>
+
+        <!-- Chat Window -->
+        <div class="chat-window">
+            <div class="chat-header" id="chatHeader">
+                <div class="chat-header-left">
+                    <div class="chat-header-avatar" id="chatAvatar">💬</div>
+                    <div class="chat-header-info">
+                        <h3 id="chatTitle">Chat Sistemi</h3>
+                        <p id="chatStatus">Yüklənir...</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="messages-container" id="messagesContainer">
+                <div class="no-selection">
+                    <div class="no-selection-icon">💬</div>
+                    <h3>Xoş gəlmisiniz</h3>
+                    <p id="welcomeMessage">Yüklənir...</p>
+                </div>
+            </div>
+
+            <div class="chat-input-area" id="chatInputArea">
+                <div class="input-wrapper">
+                    <div class="input-controls">
+                        <div id="attachmentPreview" style="display: none;"></div>
+                        <textarea id="messageInput" placeholder="Mesajınızı yazın..." rows="1"></textarea>
+                    </div>
+                    <div class="button-group">
+                        <button class="btn btn-attach" id="attachBtn" title="Şəkil əlavə et">📎</button>
+                        <button class="btn btn-send" id="sendBtn">Göndər</button>
+                    </div>
+                </div>
+                <input type="file" id="imageInput" accept="image/*">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Token
+        const token = document.cookie
+            .split("; ")
+            .find(row => row.startsWith("AuthToken="))
+            ?.split("=")[1] || "";
+
+        let currentUser = null;
+        let isAdmin = false;
+        let selectedUserId = null;
+        let selectedFile = null;
+
+        // SignalR Connection
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("/adminChatHub", {
+                accessTokenFactory: () => token
+            })
+            .withAutomaticReconnect()
+            .build();
+
+        connection.onreconnecting(() => updateConnectionStatus(false));
+        connection.onreconnected(() => {
+            updateConnectionStatus(true);
+            loadInitialData();
+        });
+        connection.onclose(() => updateConnectionStatus(false));
+
+        // Start Connection
+        async function startConnection() {
+            try {
+                await connection.start();
+                console.log("✅ SignalR connected!");
+                updateConnectionStatus(true);
+                await getCurrentUser();
+                setupUI();
+                loadInitialData();
+            } catch (err) {
+                console.error("❌ Connection error:", err);
+                updateConnectionStatus(false);
+                setTimeout(startConnection, 5000);
+            }
+        }
+
+        // Current User və Role məlumatını al
+        async function getCurrentUser() {
+            try {
+                const response = await fetch('/api/Auths/GetCurrentUser/current', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (!response.ok) throw new Error('User fetch failed');
+
+                const userData = await response.json();
+                currentUser = userData.username || userData.email || `User${Date.now()}`;
+
+                // Role yoxlaması - backend-dən gələn role field-ə görə
+                // Role: 1 = Admin, 0 veya 2 = User
+                isAdmin = userData.role === 1 || userData.role === "1" ||
+                    userData.isAdmin === true ||
+                    userData.role?.toLowerCase() === 'admin';
+
+                console.log(`👤 User: ${currentUser} | Admin: ${isAdmin}`);
+
+            } catch (error) {
+                console.error("❌ User fetch error:", error);
+                // Fallback
+                currentUser = localStorage.getItem('username') || `User${Date.now()}`;
+                isAdmin = localStorage.getItem('isAdmin') === 'true';
+            }
+        }
+
+        // UI-ni role görə tənzimlə
+        function setupUI() {
+            const container = document.getElementById('chatContainer');
+            const roleBadge = document.getElementById('roleBadge');
+            const welcomeMessage = document.getElementById('welcomeMessage');
+
+            if (isAdmin) {
+                // ADMIN MODE
+                document.body.classList.remove('user-mode');
+                container.classList.remove('user-view');
+
+                roleBadge.innerHTML = '👨‍💼 Admin Panel';
+                roleBadge.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+
+                document.getElementById('chatTitle').textContent = 'Admin Panel';
+                document.getElementById('chatStatus').textContent = 'Soldan istifadəçi seçin';
+                document.getElementById('chatAvatar').textContent = '👨‍💼';
+
+                welcomeMessage.textContent = 'Soldan istifadəçi seçin və mesajlaşmağa başlayın';
+
+                console.log('✅ Admin Panel aktivləşdirildi');
+
+            } else {
+                // USER MODE
+                document.body.classList.add('user-mode');
+                container.classList.add('user-view');
+
+                roleBadge.innerHTML = '👤 İstifadəçi';
+                roleBadge.style.background = '#3498db';
+
+                document.getElementById('chatTitle').textContent = 'Admin Dəstək';
+                document.getElementById('chatStatus').textContent = 'Online';
+                document.getElementById('chatAvatar').textContent = '👨‍💼';
+
+                welcomeMessage.textContent = 'Admin-ə mesaj göndərin';
+
+                selectedUserId = 'admin';
+
+                console.log('✅ User Panel aktivləşdirildi');
+            }
+        }
+
+        // İlkin məlumatları yüklə
+        function loadInitialData() {
+            if (isAdmin) {
+                connection.invoke("GetOnlineUsers").catch(err => {
+                    console.error("Error loading users:", err);
+                });
+            } else {
+                connection.invoke("LoadChatHistory", "admin").catch(err => {
+                    console.error("Error loading chat:", err);
+                });
+            }
+        }
+
+        // Online Users (Admin üçün)
+        connection.on("OnlineUsers", users => {
+            if (!isAdmin) return;
+
+            const usersList = document.getElementById("usersList");
+            const onlineCount = document.getElementById("onlineCount");
+
+            usersList.innerHTML = "";
+            onlineCount.textContent = users.length;
+
+            if (users.length === 0) {
+                usersList.innerHTML = '<div class="loading">Heç bir istifadəçi online deyil</div>';
+                return;
+            }
+
+            users.forEach(user => {
+                const div = document.createElement("div");
+                div.className = "user-item";
+                div.dataset.userId = user.username;
+
+                const firstLetter = user.username.charAt(0).toUpperCase();
+
+                div.innerHTML = `
+                            <div class="user-avatar">${firstLetter}</div>
+                            <div class="user-info">
+                                <div class="user-name">${user.username}</div>
+                                <div class="user-status">
+                                    <span class="status-dot"></span>
+                                    Online
+                                </div>
+                            </div>
+                            ${user.unreadCount ? `<span class="unread-badge">${user.unreadCount}</span>` : ''}
+                        `;
+
+                div.onclick = () => selectUser(user.username, div);
+                usersList.appendChild(div);
+            });
+        });
+
+        // User seçimi (Admin)
+        function selectUser(userId, element) {
+            selectedUserId = userId;
+
+            document.querySelectorAll('.user-item').forEach(el => el.classList.remove('active'));
+            element.classList.add('active');
+
+            const firstLetter = userId.charAt(0).toUpperCase();
+            document.getElementById('chatAvatar').textContent = firstLetter;
+            document.getElementById('chatTitle').textContent = userId;
+            document.getElementById('chatStatus').textContent = 'Online';
+
+            connection.invoke("LoadChatHistory", userId).catch(err => {
+                console.error("Error loading chat:", err);
+            });
+        }
+
+        // Chat History
+        connection.on("LoadChatHistory", messages => {
+            const container = document.getElementById("messagesContainer");
+            container.innerHTML = "";
+
+            if (messages.length === 0) {
+                const emptyMessage = isAdmin
+                    ? 'Hələ heç bir mesaj yoxdur'
+                    : 'Admin-ə ilk mesajınızı göndərin';
+
+                container.innerHTML = `
+                            <div class="empty-state">
+                                <div class="empty-state-icon">💬</div>
+                                <p>${emptyMessage}</p>
+                            </div>
+                        `;
+                return;
+            }
+
+            messages.forEach(msg => {
+                addMessage(msg.sender, msg.text, msg.imageUrl, msg.isAdmin, msg.timestamp);
+            });
+
+            scrollToBottom();
+        });
+
+        // Receive Message
+        connection.on("ReceiveMessage", (sender, message, imageUrl, isFromAdmin) => {
+            if (isAdmin && sender !== selectedUserId) {
+                loadInitialData();
+                return;
+            }
+
+            addMessage(sender, message, imageUrl, isFromAdmin);
+            scrollToBottom();
+
+            if (isAdmin) loadInitialData();
+        });
+
+        // Add Message
+        function addMessage(sender, text, imageUrl, isFromAdmin, timestamp) {
+            const container = document.getElementById("messagesContainer");
+            const msgDiv = document.createElement("div");
+
+            const messageClass = isFromAdmin ? "admin" : "user";
+            msgDiv.className = `message ${messageClass}`;
+
+            let content = `<div class="message-sender">${sender}</div>`;
+
+            if (text) {
+                content += `<div class="message-text">${escapeHtml(text)}</div>`;
+            }
+
+            if (imageUrl) {
+                content += `<img src="${imageUrl}" class="message-image" onclick="window.open('${imageUrl}')" alt="image">`;
+            }
+
+            if (timestamp) {
+                const time = new Date(timestamp).toLocaleTimeString('az-AZ', {
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                content += `<div class="message-time">${time}</div>`;
+            }
+
+            msgDiv.innerHTML = content;
+            container.appendChild(msgDiv);
+        }
+
+        // Send Message
+        async function sendMessage() {
+            const input = document.getElementById("messageInput");
+            const text = input.value.trim();
+
+            if (!text && !selectedFile) return;
+            if (!selectedUserId) {
+                alert("Zəhmət olmasa istifadəçi seçin!");
+                return;
+            }
+
+            try {
+                let imageUrl = null;
+
+                if (selectedFile) {
+                    imageUrl = await uploadImage(selectedFile);
+                }
+
+                await connection.invoke("SendMessage", selectedUserId, text, imageUrl);
+
+                addMessage(currentUser, text, imageUrl, isAdmin);
+                scrollToBottom();
+
+                input.value = "";
+                removeAttachment();
+
+            } catch (err) {
+                console.error("Send error:", err);
+                alert("Mesaj göndərilmədi!");
+            }
+        }
+
+        // Upload Image
+        async function uploadImage(file) {
+            const formData = new FormData();
+            formData.append('image', file);
+
+            const response = await fetch('/api/chat/upload-image', {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}` },
+                body: formData
+            });
+
+            if (!response.ok) throw new Error('Upload failed');
+
+            const data = await response.json();
+            return data.imageUrl;
+        }
+
+        // Attachment Handlers
+        document.getElementById("attachBtn").addEventListener("click", () => {
+            document.getElementById("imageInput").click();
+        });
+
+        document.getElementById("imageInput").addEventListener("change", (e) => {
+            const file = e.target.files[0];
+            if (file && file.type.startsWith('image/')) {
+                selectedFile = file;
+                showAttachmentPreview(file);
+            }
+        });
+
+        function showAttachmentPreview(file) {
+            const preview = document.getElementById("attachmentPreview");
+            const reader = new FileReader();
+
+            reader.onload = (e) => {
+                preview.innerHTML = `
+                            <img src="${e.target.result}" alt="preview">
+                            <div class="attachment-info">${file.name}</div>
+                            <button class="remove-btn" onclick="removeAttachment()">×</button>
+                        `;
+                preview.style.display = "flex";
+            };
+
+            reader.readAsDataURL(file);
+        }
+
+        function removeAttachment() {
+            selectedFile = null;
+            const preview = document.getElementById("attachmentPreview");
+            preview.innerHTML = "";
+            preview.style.display = "none";
+            document.getElementById("imageInput").value = "";
+        }
+
+        // Event Listeners
+        document.getElementById("sendBtn").addEventListener("click", sendMessage);
+
+        document.getElementById("messageInput").addEventListener("keydown", (e) => {
+            if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+
+        document.getElementById("messageInput").addEventListener("input", function () {
+            this.style.height = "auto";
+            this.style.height = Math.min(this.scrollHeight, 120) + "px";
+        });
+
+        // Notifications
+        connection.on("UserOnline", username => {
+            console.log(`✅ ${username} online oldu`);
+            if (isAdmin) loadInitialData();
+        });
+
+        connection.on("UserOffline", username => {
+            console.log(`❌ ${username} offline oldu`);
+            if (isAdmin) loadInitialData();
+        });
+
+        connection.on("NewMessageNotification", fromUser => {
+            console.log(`📩 ${fromUser} sizə mesaj göndərdi`);
+            if (isAdmin) loadInitialData();
+        });
+
+        // Helper Functions
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function scrollToBottom() {
+            const container = document.getElementById("messagesContainer");
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function updateConnectionStatus(connected) {
+            const status = document.getElementById("connectionStatus");
+            if (connected) {
+                status.innerHTML = '<span class="status-indicator"></span> Bağlandı';
+                status.classList.remove("disconnected");
+            } else {
+                status.innerHTML = '<span class="status-indicator"></span> Bağlantı kəsildi';
+                status.classList.add("disconnected");
+            }
+        }
+
+        // Start Application
+        startConnection();
+    </script>
+
+</body>
+</html>

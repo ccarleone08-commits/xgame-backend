@@ -1,0 +1,753 @@
+﻿<!doctype html>
+<html lang="az">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>5 link nümunəsi</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+
+        nav {
+            background: #f4f4f4;
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+            nav a {
+                display: inline-block;
+                margin: 6px 10px;
+                text-decoration: none;
+            }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>...</h1>
+     </header>
+    <a href="Games/domino-room.html" id="link-home">Domino</a><br />
+    <a href="Games/okey.html" id="link-about">Okey</a><br />
+    <a href="Games/loto-room.html" id="link-services">Loto</a><br />
+    <a href="Games/durak.html" id="link-portfolio">Durak</a><br />
+    <a href="Games/Poker.html" id="link-contact">Poker</a><br />
+    <a href="Games/seka.html" id="link-contact">Seka</a><br />
+    <a href="Games/Backgammon.html" id="link-contact">Nerd</a><br />
+    <a href="ChatSystemFront/crypto-deposit.html" id="link-coins">Coin al</a><br />
+    <a href="ChatSystemFront/admin-chat.html" id="link-contact">Chat</a>
+</body>
+</html>
+
+
+
+
+
+<!--<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat System</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .chat-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: flex;
+            background: #fff;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            height: 600px;
+        }
+
+        /* Users List - Admin üçün */
+        .users-panel {
+            width: 260px;
+            background: #2c3e50;
+            color: white;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .panel-header {
+            padding: 20px;
+            background: #1a252f;
+            border-bottom: 1px solid #34495e;
+        }
+
+            .panel-header h3 {
+                font-size: 16px;
+                font-weight: 600;
+            }
+
+        .users-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px;
+        }
+
+        .user-item {
+            padding: 12px 15px;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+            .user-item:hover {
+                background: rgba(255,255,255,0.1);
+            }
+
+            .user-item.active {
+                background: #3498db;
+            }
+
+            .user-item .status-dot {
+                width: 8px;
+                height: 8px;
+                border-radius: 50%;
+                background: #2ecc71;
+            }
+
+            .user-item .unread-badge {
+                margin-left: auto;
+                background: #e74c3c;
+                color: white;
+                padding: 2px 8px;
+                border-radius: 10px;
+                font-size: 11px;
+                font-weight: bold;
+            }
+
+        /* Chat Window */
+        .chat-window {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #f8f9fa;
+        }
+
+        .chat-header {
+            padding: 20px;
+            background: white;
+            border-bottom: 2px solid #e9ecef;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+            .chat-header h3 {
+                font-size: 18px;
+                color: #2c3e50;
+            }
+
+        .messages-container {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .message {
+            max-width: 65%;
+            padding: 12px 16px;
+            border-radius: 16px;
+            word-wrap: break-word;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.admin {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+        }
+
+        .message.user {
+            background: white;
+            color: #2c3e50;
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .message-sender {
+            font-size: 11px;
+            font-weight: 600;
+            margin-bottom: 4px;
+            opacity: 0.8;
+        }
+
+        .message-text {
+            line-height: 1.4;
+        }
+
+        .message-image {
+            max-width: 20%;
+            border-radius: 8px;
+            margin-top: 8px;
+            cursor: pointer;
+        }
+
+        /* Input Area */
+        .chat-input-area {
+            padding: 15px 20px;
+            background: white;
+            border-top: 2px solid #e9ecef;
+        }
+
+        .input-wrapper {
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+        }
+
+        .input-controls {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        #messageInput {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e9ecef;
+            border-radius: 24px;
+            outline: none;
+            font-size: 14px;
+            resize: none;
+            font-family: inherit;
+            max-height: 100px;
+        }
+
+            #messageInput:focus {
+                border-color: #667eea;
+            }
+
+        .attachment-preview {
+            display: flex;
+            gap: 8px;
+            padding: 8px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            align-items: center;
+        }
+
+            .attachment-preview img {
+                width: 60px;
+                height: 60px;
+                object-fit: cover;
+                border-radius: 6px;
+            }
+
+            .attachment-preview .remove-btn {
+                background: #e74c3c;
+                color: white;
+                border: none;
+                width: 24px;
+                height: 24px;
+                border-radius: 50%;
+                cursor: pointer;
+                font-size: 16px;
+                line-height: 1;
+            }
+
+        .button-group {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 24px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-attach {
+            background: #95a5a6;
+            color: white;
+        }
+
+            .btn-attach:hover {
+                background: #7f8c8d;
+            }
+
+        .btn-send {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+            .btn-send:hover {
+                transform: scale(1.05);
+            }
+
+        #imageInput {
+            display: none;
+        }
+
+        /* Scrollbar */
+        .messages-container::-webkit-scrollbar,
+        .users-list::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .messages-container::-webkit-scrollbar-track,
+        .users-list::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .messages-container::-webkit-scrollbar-thumb {
+            background: #cbd5e0;
+            border-radius: 3px;
+        }
+
+        .users-list::-webkit-scrollbar-thumb {
+            background: #34495e;
+            border-radius: 3px;
+        }
+
+        /* User sadəcə Admin görür */
+        .user-view .users-panel {
+            display: none;
+        }
+
+        .user-view .chat-container {
+            max-width: 700px;
+        }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #95a5a6;
+        }
+
+        /* Connection Status */
+        .connection-status {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            background: #2ecc71;
+            color: white;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+            .connection-status.disconnected {
+                background: #e74c3c;
+            }
+    </style>
+</head>
+<body>
+
+    <div class="connection-status" id="connectionStatus">Qoşulur...</div>
+
+    <div class="chat-container" id="chatContainer">
+         Admin Panel - yalnız admin görür
+        <div class="users-panel" id="usersPanel" style="display: none;">
+            <div class="panel-header">
+                <h3>📋 Online İstifadəçilər</h3>
+            </div>
+            <div class="users-list" id="usersList">
+                <div class="loading">İstifadəçilər yüklənir...</div>
+            </div>
+        </div>
+
+         Chat Window
+        <div class="chat-window">
+            <div class="chat-header">
+                <h3 id="chatTitle">💬 Chat</h3>
+            </div>
+
+            <div class="messages-container" id="messagesContainer">
+                <div class="loading">Mesajlar yüklənir...</div>
+            </div>
+
+            <div class="chat-input-area">
+                <div class="input-wrapper">
+                    <div class="input-controls">
+                        <div id="attachmentPreview"></div>
+                        <textarea id="messageInput"
+                                  placeholder="Mesajınızı yazın..."
+                                  rows="1"></textarea>
+                    </div>
+                    <div class="button-group">
+                        <button class="btn btn-attach" id="attachBtn">📎</button>
+                        <button class="btn btn-send" id="sendBtn">Göndər</button>
+                    </div>
+                </div>
+                <input type="file" id="imageInput" accept="image/*">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Token və User məlumatları
+        const token = document.cookie
+            .split("; ")
+            .find(row => row.startsWith("AuthToken="))
+            ?.split("=")[1] || "";
+
+        // User məlumatlarını fetch et (backend-dən gəlməlidir)
+        let currentUser = null;
+        let isAdmin = false;
+        let selectedUserId = null;
+        let selectedFile = null;
+
+        // SignalR Connection
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("/adminChatHub", {
+                accessTokenFactory: () => token
+            })
+            .withAutomaticReconnect()
+            .build();
+
+        // Connection events
+        connection.onreconnecting(() => {
+            updateConnectionStatus(false);
+        });
+
+        connection.onreconnected(() => {
+            updateConnectionStatus(true);
+            loadInitialData();
+        });
+
+        connection.onclose(() => {
+            updateConnectionStatus(false);
+        });
+
+        // Start connection
+        async function startConnection() {
+            try {
+                await connection.start();
+                console.log("SignalR connected!");
+                updateConnectionStatus(true);
+
+                // User məlumatlarını al
+                await getCurrentUser();
+                loadInitialData();
+
+            } catch (err) {
+                console.error("Connection error:", err);
+                updateConnectionStatus(false);
+                setTimeout(startConnection, 5000);
+            }
+        }
+
+        // Current user məlumatlarını al
+        async function getCurrentUser() {
+            try {
+                // Backend API-dən current user məlumatını al
+                const response = await fetch('/api/Auths/GetCurrentUser/current', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                const userData = await response.json();
+                currentUser = userData.username || userData.email || `User${Date.now()}`;
+                isAdmin = userData.role === 'Admin' || userData.isAdmin;
+
+                // UI-ni tənzimlə
+                setupUI();
+
+            } catch (error) {
+                console.error("User fetch error:", error);
+                // Fallback - cookie və ya localStorage-dan
+                currentUser = localStorage.getItem('username') || `User${Date.now()}`;
+                isAdmin = localStorage.getItem('isAdmin') === 'true';
+                setupUI();
+            }
+        }
+
+        // UI-ni tənzimlə
+        function setupUI() {
+            const container = document.getElementById('chatContainer');
+
+            if (isAdmin) {
+                // Admin panel göstər
+                document.getElementById('usersPanel').style.display = 'flex';
+                document.getElementById('chatTitle').textContent = '👨‍💼 Admin Panel';
+            } else {
+                // User view
+                container.classList.add('user-view');
+                document.getElementById('chatTitle').textContent = '💬 Admin ilə Chat';
+                selectedUserId = 'admin'; // User həmişə admin ilə danışır
+            }
+        }
+
+        // İlkin məlumatları yüklə
+        function loadInitialData() {
+            if (isAdmin) {
+                connection.invoke("GetOnlineUsers").catch(err => console.error(err));
+            } else {
+                // User üçün admin ilə chat tarixini yüklə
+                connection.invoke("LoadChatHistory", "admin").catch(err => console.error(err));
+            }
+        }
+
+        // Online users (Admin üçün)
+        connection.on("OnlineUsers", users => {
+            const usersList = document.getElementById("usersList");
+            usersList.innerHTML = "";
+
+            // Admin özündən başqa bütün userləri görür
+            users.filter(u => u.username !== currentUser).forEach(user => {
+                const div = document.createElement("div");
+                div.className = "user-item";
+                div.dataset.userId = user.username;
+                div.innerHTML = `
+                        <span class="status-dot"></span>
+                        <span>${user.username}</span>
+                        ${user.unreadCount ? `<span class="unread-badge">${user.unreadCount}</span>` : ''}
+                    `;
+                div.onclick = () => selectUser(user.username, div);
+                usersList.appendChild(div);
+            });
+
+            // İlk useri seç
+            if (users.length > 0 && !selectedUserId) {
+                const firstUser = users.find(u => u.username !== currentUser);
+                if (firstUser) {
+                    selectUser(firstUser.username, usersList.firstElementChild);
+                }
+            }
+        });
+
+        // User seçimi (Admin)
+        function selectUser(userId, element) {
+            selectedUserId = userId;
+
+            // Active class
+            document.querySelectorAll('.user-item').forEach(el => el.classList.remove('active'));
+            element.classList.add('active');
+
+            // Chat başlığını yenilə
+            document.getElementById('chatTitle').textContent = `💬 ${userId} ilə Chat`;
+
+            // Chat tarixini yüklə
+            connection.invoke("LoadChatHistory", userId).catch(err => console.error(err));
+        }
+
+        // Chat tarixini yüklə
+        connection.on("LoadChatHistory", messages => {
+            const container = document.getElementById("messagesContainer");
+            container.innerHTML = "";
+
+            messages.forEach(msg => {
+                addMessage(msg.sender, msg.text, msg.imageUrl, msg.isAdmin);
+            });
+
+            scrollToBottom();
+        });
+
+        // Yeni mesaj al
+        connection.on("ReceiveMessage", (sender, message, imageUrl, isFromAdmin) => {
+            addMessage(sender, message, imageUrl, isFromAdmin);
+            scrollToBottom();
+        });
+
+        // Mesaj əlavə et
+        function addMessage(sender, text, imageUrl, isFromAdmin) {
+            const container = document.getElementById("messagesContainer");
+            const msgDiv = document.createElement("div");
+
+            const messageClass = isFromAdmin ? "admin" : "user";
+            msgDiv.className = `message ${messageClass}`;
+
+            let content = `<div class="message-sender">${sender}</div>`;
+
+            if (text) {
+                content += `<div class="message-text">${escapeHtml(text)}</div>`;
+            }
+
+            if (imageUrl) {
+                content += `<img src="${imageUrl}" class="message-image" onclick="window.open('${imageUrl}')" alt="image">`;
+            }
+
+            msgDiv.innerHTML = content;
+            container.appendChild(msgDiv);
+        }
+
+        // HTML escape
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Scroll to bottom
+        function scrollToBottom() {
+            const container = document.getElementById("messagesContainer");
+            container.scrollTop = container.scrollHeight;
+        }
+
+        // Connection status
+        function updateConnectionStatus(connected) {
+            const status = document.getElementById("connectionStatus");
+            if (connected) {
+                status.textContent = "✓ Qoşuldu";
+                status.classList.remove("disconnected");
+            } else {
+                status.textContent = "✗ Qoşulmadı";
+                status.classList.add("disconnected");
+            }
+        }
+
+        // Fayl seçimi
+        document.getElementById("attachBtn").addEventListener("click", () => {
+            document.getElementById("imageInput").click();
+        });
+
+        document.getElementById("imageInput").addEventListener("change", (e) => {
+            const file = e.target.files[0];
+            if (file && file.type.startsWith('image/')) {
+                selectedFile = file;
+                showAttachmentPreview(file);
+            }
+        });
+
+        // Attachment preview
+        function showAttachmentPreview(file) {
+            const preview = document.getElementById("attachmentPreview");
+            const reader = new FileReader();
+
+            reader.onload = (e) => {
+                preview.innerHTML = `
+                        <img src="${e.target.result}" alt="preview">
+                        <span>${file.name}</span>
+                        <button class="remove-btn" onclick="removeAttachment()">×</button>
+                    `;
+                preview.style.display = "flex";
+            };
+
+            reader.readAsDataURL(file);
+        }
+
+        // Remove attachment
+        function removeAttachment() {
+            selectedFile = null;
+            document.getElementById("attachmentPreview").innerHTML = "";
+            document.getElementById("attachmentPreview").style.display = "none";
+            document.getElementById("imageInput").value = "";
+        }
+
+        // Mesaj göndər
+        async function sendMessage() {
+            const input = document.getElementById("messageInput");
+            const text = input.value.trim();
+
+            if (!text && !selectedFile) return;
+            if (!selectedUserId) {
+                alert("Zəhmət olmasa istifadəçi seçin!");
+                return;
+            }
+
+            try {
+                let imageUrl = null;
+
+                // Şəkil varsa upload et
+                if (selectedFile) {
+                    imageUrl = await uploadImage(selectedFile);
+                }
+
+                // Mesajı göndər
+                await connection.invoke("SendMessage", selectedUserId, text, imageUrl);
+
+                // Input-ları təmizlə
+                input.value = "";
+                removeAttachment();
+
+                // Öz mesajını göstər
+                addMessage(currentUser, text, imageUrl, isAdmin);
+                scrollToBottom();
+
+            } catch (err) {
+                console.error("Send message error:", err);
+                alert("Mesaj göndərilmədi. Yenidən cəhd edin.");
+            }
+        }
+
+        // Şəkil upload
+        async function uploadImage(file) {
+            const formData = new FormData();
+            formData.append('image', file);
+
+            const response = await fetch('/api/chat/upload-image', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                },
+                body: formData
+            });
+
+            if (!response.ok) throw new Error('Upload failed');
+
+            const data = await response.json();
+            return data.imageUrl;
+        }
+
+        // Event listeners
+        document.getElementById("sendBtn").addEventListener("click", sendMessage);
+
+        document.getElementById("messageInput").addEventListener("keydown", (e) => {
+            if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+
+        // Auto-resize textarea
+        document.getElementById("messageInput").addEventListener("input", function () {
+            this.style.height = "auto";
+            this.style.height = Math.min(this.scrollHeight, 100) + "px";
+        });
+
+        // Start
+        startConnection();
+    </script>
+
+</body>
+</html>-->

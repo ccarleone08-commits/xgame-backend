@@ -1,0 +1,85 @@
+﻿@model IEnumerable<ConsumeWebMVC.Models.CategoryVM>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+<p>
+    <a asp-action="Create" class="btn btn-edit">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>@Html.DisplayNameFor(model => model.Name)</th>
+            <th>@Html.DisplayNameFor(model => model.Icon)</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@Html.DisplayFor(modelItem => item.Name)</td>
+                <td>@Html.DisplayFor(modelItem => item.Icon)</td>
+                <td>
+                    @Html.ActionLink("Edit", "Edit", new { id = item.Id }, new { @class = "btn btn-edit" })
+                    @Html.ActionLink("Details", "Details", new { id = item.Id }, new { @class = "btn btn-details" })
+                    @Html.ActionLink("Delete", "Delete", new { id = item.Id }, new { @class = "btn btn-delete" })
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<style>
+    /* Cədvələ dizayn vermək */
+    .table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+
+        .table th, .table td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+
+        .table th {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .table tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        .table tr:hover {
+            background-color: #ddd;
+        }
+
+    /* Düymələrə dizayn vermək */
+    .btn {
+        padding: 5px 10px;
+        border: none;
+        color: white;
+        text-decoration: none;
+        border-radius: 4px;
+        font-size: 14px;
+    }
+
+    .btn-edit {
+        background-color: #ffc107;
+    }
+    /* Sarı */
+    .btn-details {
+        background-color: #17a2b8;
+    }
+    /* Mavi */
+    .btn-delete {
+        background-color: #dc3545;
+    }
+    /* Qırmızı */
+
+</style>

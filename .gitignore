@@ -1,0 +1,28 @@
+.vs/
+bin/
+obj/
+**/bin/
+**/obj/
+*.user
+*.suo
+*.lscache
+
+# Local secrets and deployment overrides
+appsettings.Production.json
+appsettings.Local.json
+*.env
+.env
+.env.*
+!.env.example
+
+# Runtime uploads
+**/wwwroot/uploads/
+uploads/
+artifacts/
+build-check/
+tmp/
+.tmp/
+
+# Logs
+*.log
+logs/

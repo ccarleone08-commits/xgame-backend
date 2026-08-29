@@ -1,0 +1,1748 @@
+﻿<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Support Panel</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+                /* ═══════════════════════════════════════════════
+           CSS VARIABLES & RESET
+        ═══════════════════════════════════════════════ */
+                :root {
+                    --bg-base: #080b12;
+                    --bg-surface: #0d1117;
+                    --bg-elevated: #131922;
+                    --bg-hover: #1a2030;
+                    --border: #1e2636;
+                    --border-light: #253040;
+                    --accent: #4f8ef7;
+                    --accent-dim: #1a2d4a;
+                    --green: #22c55e;
+                    --green-dim: #0d2318;
+                    --yellow: #f59e0b;
+                    --yellow-dim: #1f1a08;
+                    --red: #ef4444;
+                    --red-dim: #200d0d;
+                    --purple: #a78bfa;
+                    --purple-dim: #1a1330;
+                    --text-primary: #e8edf5;
+                    --text-secondary: #7d8fa8;
+                    --text-muted: #3d4f63;
+                    --radius: 10px;
+                    --mono: 'JetBrains Mono', monospace;
+                    --sans: 'DM Sans', sans-serif;
+                }
+
+                *, *::before, *::after {
+                    margin: 0;
+                    padding: 0;
+                    box-sizing: border-box;
+                }
+
+                html, body {
+                    height: 100%;
+                    background: var(--bg-base);
+                    color: var(--text-primary);
+                    font-family: var(--sans);
+                    font-size: 14px;
+                    overflow: hidden;
+                }
+
+                button {
+                    font-family: var(--sans);
+                    cursor: pointer;
+                }
+
+                input, textarea {
+                    font-family: var(--sans);
+                }
+
+                ::-webkit-scrollbar {
+                    width: 4px;
+                    height: 4px;
+                }
+
+                ::-webkit-scrollbar-track {
+                    background: transparent;
+                }
+
+                ::-webkit-scrollbar-thumb {
+                    background: var(--border-light);
+                    border-radius: 4px;
+                }
+
+                /* ═══════════════════════════════════════════════
+           LAYOUT
+        ═══════════════════════════════════════════════ */
+                .app {
+                    display: grid;
+                    grid-template-rows: 52px 1fr;
+                    grid-template-columns: 320px 1fr;
+                    height: 100vh;
+                }
+
+                /* ═══════════════════════════════════════════════
+           TOPBAR
+        ═══════════════════════════════════════════════ */
+                .topbar {
+                    grid-column: 1 / -1;
+                    background: var(--bg-surface);
+                    border-bottom: 1px solid var(--border);
+                    display: flex;
+                    align-items: center;
+                    padding: 0 20px;
+                    gap: 16px;
+                }
+
+                .topbar-brand {
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                    font-family: var(--mono);
+                    font-size: 13px;
+                    font-weight: 600;
+                    color: var(--text-primary);
+                    letter-spacing: -0.3px;
+                }
+
+                .brand-dot {
+                    width: 8px;
+                    height: 8px;
+                    background: var(--accent);
+                    border-radius: 50%;
+                    box-shadow: 0 0 8px var(--accent);
+                    animation: pulse 2s infinite;
+                }
+
+                @keyframes pulse {
+                    0%, 100% {
+                        opacity: 1;
+                    }
+
+                    50% {
+                        opacity: 0.4;
+                    }
+                }
+
+                .topbar-sep {
+                    flex: 1;
+                }
+
+                .topbar-user {
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                }
+
+                .user-chip {
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    background: var(--bg-elevated);
+                    border: 1px solid var(--border);
+                    border-radius: 20px;
+                    padding: 5px 12px 5px 8px;
+                    font-size: 12px;
+                    color: var(--text-secondary);
+                }
+
+                .user-avatar {
+                    width: 22px;
+                    height: 22px;
+                    background: var(--accent-dim);
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 10px;
+                    color: var(--accent);
+                    font-weight: 700;
+                    font-family: var(--mono);
+                }
+
+                .role-pill {
+                    font-size: 10px;
+                    font-family: var(--mono);
+                    font-weight: 600;
+                    padding: 2px 8px;
+                    border-radius: 20px;
+                    letter-spacing: 0.5px;
+                }
+
+                    .role-pill.admin {
+                        background: var(--purple-dim);
+                        color: var(--purple);
+                        border: 1px solid #3d2d6a;
+                    }
+
+                    .role-pill.worker {
+                        background: var(--accent-dim);
+                        color: var(--accent);
+                        border: 1px solid #1e3a6a;
+                    }
+
+                .btn-logout {
+                    background: transparent;
+                    border: 1px solid var(--border);
+                    color: var(--text-muted);
+                    padding: 5px 12px;
+                    border-radius: 7px;
+                    font-size: 12px;
+                    transition: all .2s;
+                }
+
+                    .btn-logout:hover {
+                        border-color: var(--red);
+                        color: var(--red);
+                    }
+
+                /* Hub status */
+                .hub-status {
+                    display: flex;
+                    align-items: center;
+                    gap: 6px;
+                    font-size: 11px;
+                    font-family: var(--mono);
+                    color: var(--text-muted);
+                }
+
+                .hub-dot {
+                    width: 6px;
+                    height: 6px;
+                    border-radius: 50%;
+                    background: var(--text-muted);
+                    transition: background .3s;
+                }
+
+                    .hub-dot.connected {
+                        background: var(--green);
+                        box-shadow: 0 0 6px var(--green);
+                    }
+
+                    .hub-dot.error {
+                        background: var(--red);
+                    }
+
+                /* ═══════════════════════════════════════════════
+           SIDEBAR
+        ═══════════════════════════════════════════════ */
+                .sidebar {
+                    background: var(--bg-surface);
+                    border-right: 1px solid var(--border);
+                    display: flex;
+                    flex-direction: column;
+                    overflow: hidden;
+                }
+
+                .sidebar-head {
+                    padding: 14px 16px 10px;
+                    border-bottom: 1px solid var(--border);
+                    flex-shrink: 0;
+                }
+
+                .sidebar-title {
+                    font-size: 12px;
+                    font-family: var(--mono);
+                    font-weight: 600;
+                    color: var(--text-secondary);
+                    text-transform: uppercase;
+                    letter-spacing: 1px;
+                    margin-bottom: 10px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                }
+
+                .ticket-count {
+                    font-size: 10px;
+                    background: var(--bg-elevated);
+                    border: 1px solid var(--border);
+                    color: var(--text-muted);
+                    padding: 2px 7px;
+                    border-radius: 10px;
+                    font-family: var(--mono);
+                }
+
+                /* Filter tabs */
+                .filters {
+                    display: flex;
+                    gap: 4px;
+                    flex-wrap: wrap;
+                }
+
+                .ftab {
+                    background: var(--bg-elevated);
+                    border: 1px solid var(--border);
+                    color: var(--text-muted);
+                    padding: 4px 10px;
+                    border-radius: 6px;
+                    font-size: 11px;
+                    font-family: var(--mono);
+                    transition: all .15s;
+                }
+
+                    .ftab:hover {
+                        color: var(--text-secondary);
+                        border-color: var(--border-light);
+                    }
+
+                    .ftab.active {
+                        background: var(--accent-dim);
+                        border-color: var(--accent);
+                        color: var(--accent);
+                    }
+
+                /* Ticket list */
+                .ticket-list {
+                    flex: 1;
+                    overflow-y: auto;
+                    padding: 8px;
+                }
+
+                .ticket-card {
+                    border: 1px solid var(--border);
+                    border-radius: var(--radius);
+                    padding: 12px;
+                    margin-bottom: 6px;
+                    cursor: pointer;
+                    transition: all .15s;
+                    position: relative;
+                    background: var(--bg-elevated);
+                }
+
+                    .ticket-card:hover {
+                        border-color: var(--border-light);
+                        background: var(--bg-hover);
+                    }
+
+                    .ticket-card.active {
+                        border-color: var(--accent);
+                        background: var(--accent-dim);
+                    }
+
+                        .ticket-card.active::before {
+                            content: '';
+                            position: absolute;
+                            left: 0;
+                            top: 20%;
+                            bottom: 20%;
+                            width: 3px;
+                            background: var(--accent);
+                            border-radius: 0 3px 3px 0;
+                        }
+
+                .card-top {
+                    display: flex;
+                    align-items: center;
+                    gap: 6px;
+                    margin-bottom: 7px;
+                }
+
+                .tk-num {
+                    font-family: var(--mono);
+                    font-size: 11px;
+                    font-weight: 600;
+                    color: var(--accent);
+                }
+
+                .badge {
+                    font-size: 10px;
+                    font-family: var(--mono);
+                    font-weight: 600;
+                    padding: 2px 7px;
+                    border-radius: 4px;
+                    letter-spacing: 0.3px;
+                }
+
+                .badge-high {
+                    background: var(--red-dim);
+                    color: var(--red);
+                    border: 1px solid #3d1515;
+                }
+
+                .badge-medium {
+                    background: var(--yellow-dim);
+                    color: var(--yellow);
+                    border: 1px solid #3d2d0a;
+                }
+
+                .badge-low {
+                    background: var(--green-dim);
+                    color: var(--green);
+                    border: 1px solid #0d2d18;
+                }
+
+                .badge-open {
+                    background: #0d1a2e;
+                    color: #60a5fa;
+                    border: 1px solid #1a3050;
+                }
+
+                .badge-claimed {
+                    background: var(--yellow-dim);
+                    color: var(--yellow);
+                    border: 1px solid #3d2d0a;
+                }
+
+                .badge-inprogress {
+                    background: var(--purple-dim);
+                    color: var(--purple);
+                    border: 1px solid #2d1a5e;
+                }
+
+                .badge-solved {
+                    background: var(--green-dim);
+                    color: var(--green);
+                    border: 1px solid #0d2d18;
+                }
+
+                .badge-closed {
+                    background: #141414;
+                    color: #555;
+                    border: 1px solid #252525;
+                }
+
+                .card-subject {
+                    font-size: 13px;
+                    font-weight: 500;
+                    color: var(--text-primary);
+                    margin-bottom: 6px;
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                }
+
+                .card-bottom {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    font-size: 11px;
+                    color: var(--text-muted);
+                }
+
+                .card-user {
+                    color: var(--text-secondary);
+                }
+
+                .btn-claim-sm {
+                    background: var(--accent);
+                    color: #fff;
+                    border: none;
+                    padding: 3px 10px;
+                    border-radius: 5px;
+                    font-size: 11px;
+                    font-family: var(--mono);
+                    font-weight: 600;
+                    transition: opacity .15s;
+                }
+
+                    .btn-claim-sm:hover {
+                        opacity: .85;
+                    }
+
+                .worker-tag {
+                    color: var(--purple);
+                    font-family: var(--mono);
+                    font-size: 10px;
+                }
+
+                .list-empty {
+                    text-align: center;
+                    padding: 48px 16px;
+                    color: var(--text-muted);
+                    font-size: 13px;
+                }
+
+                /* ═══════════════════════════════════════════════
+           MAIN PANEL
+        ═══════════════════════════════════════════════ */
+                .main-panel {
+                    display: flex;
+                    flex-direction: column;
+                    overflow: hidden;
+                    background: var(--bg-base);
+                }
+
+                /* Empty state */
+                .panel-empty {
+                    flex: 1;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 12px;
+                    color: var(--text-muted);
+                }
+
+                    .panel-empty svg {
+                        opacity: .2;
+                    }
+
+                    .panel-empty p {
+                        font-size: 13px;
+                        font-family: var(--mono);
+                    }
+
+                /* Detail header */
+                .detail-header {
+                    background: var(--bg-surface);
+                    border-bottom: 1px solid var(--border);
+                    padding: 12px 20px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    flex-shrink: 0;
+                    gap: 12px;
+                }
+
+                .detail-header-left {
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                }
+
+                .detail-tk-num {
+                    font-family: var(--mono);
+                    font-size: 14px;
+                    font-weight: 600;
+                    color: var(--accent);
+                }
+
+                .header-actions {
+                    display: flex;
+                    gap: 8px;
+                }
+
+                .btn-act {
+                    border: none;
+                    padding: 6px 14px;
+                    border-radius: 7px;
+                    font-size: 12px;
+                    font-weight: 600;
+                    font-family: var(--mono);
+                    transition: opacity .15s;
+                }
+
+                    .btn-act:hover {
+                        opacity: .85;
+                    }
+
+                .btn-primary {
+                    background: var(--accent);
+                    color: #fff;
+                }
+
+                .btn-success {
+                    background: var(--green);
+                    color: #fff;
+                }
+
+                .btn-warning {
+                    background: var(--yellow);
+                    color: #000;
+                }
+
+                /* Info bar */
+                .info-bar {
+                    background: var(--bg-surface);
+                    border-bottom: 1px solid var(--border);
+                    padding: 10px 20px;
+                    display: flex;
+                    gap: 20px;
+                    flex-shrink: 0;
+                    overflow-x: auto;
+                    flex-wrap: wrap;
+                }
+
+                .info-item {
+                    font-size: 11px;
+                    font-family: var(--mono);
+                    color: var(--text-muted);
+                    white-space: nowrap;
+                }
+
+                    .info-item strong {
+                        color: var(--text-secondary);
+                        margin-left: 4px;
+                        font-weight: 500;
+                    }
+
+                /* Original message */
+                .orig-msg {
+                    background: var(--bg-elevated);
+                    border-bottom: 1px solid var(--border);
+                    padding: 14px 20px;
+                    flex-shrink: 0;
+                }
+
+                .orig-label {
+                    font-size: 10px;
+                    font-family: var(--mono);
+                    color: var(--text-muted);
+                    text-transform: uppercase;
+                    letter-spacing: 1px;
+                    margin-bottom: 6px;
+                }
+
+                .orig-text {
+                    font-size: 13px;
+                    color: var(--text-secondary);
+                    line-height: 1.6;
+                }
+
+                /* Chat area */
+                .chat-area {
+                    flex: 1;
+                    overflow-y: auto;
+                    padding: 16px 20px;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 10px;
+                }
+
+                .msg-wrap {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: flex-end;
+                }
+
+                .msg-bubble {
+                    max-width: 68%;
+                    background: var(--bg-elevated);
+                    border: 1px solid var(--border);
+                    border-radius: 12px 12px 3px 12px;
+                    padding: 10px 14px;
+                    font-size: 13px;
+                    line-height: 1.55;
+                    color: var(--text-primary);
+                    word-break: break-word;
+                }
+
+                    .msg-bubble.internal {
+                        background: var(--yellow-dim);
+                        border-color: #3d2d0a;
+                        border-style: dashed;
+                    }
+
+                .msg-meta {
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    margin-bottom: 5px;
+                }
+
+                .msg-sender {
+                    font-size: 11px;
+                    font-family: var(--mono);
+                    font-weight: 600;
+                    color: var(--purple);
+                }
+
+                .msg-time {
+                    font-size: 10px;
+                    font-family: var(--mono);
+                    color: var(--text-muted);
+                }
+
+                .msg-internal-tag {
+                    font-size: 9px;
+                    font-family: var(--mono);
+                    color: var(--yellow);
+                    background: var(--yellow-dim);
+                    border: 1px solid #3d2d0a;
+                    padding: 1px 5px;
+                    border-radius: 3px;
+                }
+
+                .chat-empty {
+                    flex: 1;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    color: var(--text-muted);
+                    font-size: 12px;
+                    font-family: var(--mono);
+                }
+
+                /* Solved banner */
+                .solved-banner {
+                    margin: 0;
+                    background: var(--green-dim);
+                    border-top: 1px solid #1a4d2e;
+                    color: var(--green);
+                    text-align: center;
+                    padding: 10px;
+                    font-size: 12px;
+                    font-family: var(--mono);
+                    font-weight: 600;
+                    letter-spacing: 0.5px;
+                    flex-shrink: 0;
+                }
+
+                /* Chat input */
+                .chat-input-wrap {
+                    background: var(--bg-surface);
+                    border-top: 1px solid var(--border);
+                    padding: 14px 20px;
+                    flex-shrink: 0;
+                }
+
+                .chat-row {
+                    display: flex;
+                    gap: 10px;
+                    align-items: flex-end;
+                }
+
+                #chat-input {
+                    flex: 1;
+                    background: var(--bg-elevated);
+                    border: 1px solid var(--border);
+                    border-radius: 10px;
+                    padding: 10px 14px;
+                    color: var(--text-primary);
+                    font-size: 13px;
+                    resize: none;
+                    outline: none;
+                    height: 42px;
+                    max-height: 100px;
+                    transition: border-color .2s;
+                    line-height: 1.5;
+                }
+
+                    #chat-input:focus {
+                        border-color: var(--accent);
+                    }
+
+                .btn-send {
+                    background: var(--accent);
+                    color: #fff;
+                    border: none;
+                    border-radius: 10px;
+                    width: 42px;
+                    height: 42px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    flex-shrink: 0;
+                    transition: opacity .15s, transform .1s;
+                }
+
+                    .btn-send:hover {
+                        opacity: .85;
+                    }
+
+                    .btn-send:active {
+                        transform: scale(.95);
+                    }
+
+                .chat-extras {
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                    margin-top: 8px;
+                }
+
+                .internal-label {
+                    display: flex;
+                    align-items: center;
+                    gap: 6px;
+                    font-size: 11px;
+                    font-family: var(--mono);
+                    color: var(--text-muted);
+                    cursor: pointer;
+                    user-select: none;
+                }
+
+                    .internal-label input {
+                        accent-color: var(--yellow);
+                        cursor: pointer;
+                    }
+
+                /* ═══════════════════════════════════════════════
+           STATS MODAL
+        ═══════════════════════════════════════════════ */
+                .modal-overlay {
+                    position: fixed;
+                    inset: 0;
+                    background: rgba(0,0,0,.7);
+                    backdrop-filter: blur(4px);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    z-index: 1000;
+                    opacity: 0;
+                    pointer-events: none;
+                    transition: opacity .2s;
+                }
+
+                    .modal-overlay.show {
+                        opacity: 1;
+                        pointer-events: all;
+                    }
+
+                .modal {
+                    background: var(--bg-surface);
+                    border: 1px solid var(--border-light);
+                    border-radius: 14px;
+                    padding: 24px;
+                    width: 520px;
+                    max-width: 90vw;
+                    max-height: 80vh;
+                    overflow-y: auto;
+                    transform: translateY(10px);
+                    transition: transform .2s;
+                }
+
+                .modal-overlay.show .modal {
+                    transform: translateY(0);
+                }
+
+                .modal-title {
+                    font-family: var(--mono);
+                    font-size: 13px;
+                    font-weight: 600;
+                    color: var(--text-secondary);
+                    text-transform: uppercase;
+                    letter-spacing: 1px;
+                    margin-bottom: 20px;
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                }
+
+                .btn-close-modal {
+                    background: transparent;
+                    border: none;
+                    color: var(--text-muted);
+                    font-size: 18px;
+                    cursor: pointer;
+                    padding: 0 4px;
+                    transition: color .15s;
+                }
+
+                    .btn-close-modal:hover {
+                        color: var(--red);
+                    }
+
+                .stats-grid {
+                    display: grid;
+                    grid-template-columns: repeat(3, 1fr);
+                    gap: 10px;
+                    margin-bottom: 20px;
+                }
+
+                .stat-card {
+                    background: var(--bg-elevated);
+                    border: 1px solid var(--border);
+                    border-radius: 10px;
+                    padding: 14px;
+                    text-align: center;
+                }
+
+                .stat-num {
+                    font-family: var(--mono);
+                    font-size: 26px;
+                    font-weight: 700;
+                    color: var(--text-primary);
+                }
+
+                .stat-lbl {
+                    font-size: 10px;
+                    font-family: var(--mono);
+                    color: var(--text-muted);
+                    text-transform: uppercase;
+                    letter-spacing: 0.5px;
+                    margin-top: 4px;
+                }
+
+                .worker-stats-title {
+                    font-family: var(--mono);
+                    font-size: 11px;
+                    color: var(--text-muted);
+                    text-transform: uppercase;
+                    letter-spacing: 1px;
+                    margin-bottom: 10px;
+                }
+
+                .worker-row {
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                    padding: 10px 12px;
+                    background: var(--bg-elevated);
+                    border: 1px solid var(--border);
+                    border-radius: 8px;
+                    margin-bottom: 6px;
+                }
+
+                .worker-name {
+                    font-family: var(--mono);
+                    font-size: 12px;
+                    color: var(--text-primary);
+                    flex: 1;
+                }
+
+                .worker-stat-num {
+                    font-family: var(--mono);
+                    font-size: 11px;
+                    color: var(--text-muted);
+                }
+
+                    .worker-stat-num span {
+                        color: var(--green);
+                        font-weight: 600;
+                    }
+
+                /* Progress bar */
+                .progress-bar {
+                    height: 3px;
+                    background: var(--border);
+                    border-radius: 3px;
+                    margin-top: 6px;
+                    overflow: hidden;
+                }
+
+                .progress-fill {
+                    height: 100%;
+                    background: var(--green);
+                    border-radius: 3px;
+                    transition: width .5s ease;
+                }
+
+                /* ═══════════════════════════════════════════════
+           TOAST
+        ═══════════════════════════════════════════════ */
+                .toast-container {
+                    position: fixed;
+                    bottom: 20px;
+                    right: 20px;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 8px;
+                    z-index: 9999;
+                }
+
+                .toast {
+                    background: var(--bg-elevated);
+                    border: 1px solid var(--border-light);
+                    border-left: 3px solid var(--accent);
+                    border-radius: 8px;
+                    padding: 10px 16px;
+                    font-size: 12px;
+                    font-family: var(--mono);
+                    color: var(--text-primary);
+                    min-width: 260px;
+                    max-width: 340px;
+                    animation: toastIn .2s ease;
+                    box-shadow: 0 4px 20px rgba(0,0,0,.4);
+                }
+
+                    .toast.success {
+                        border-left-color: var(--green);
+                    }
+
+                    .toast.error {
+                        border-left-color: var(--red);
+                    }
+
+                    .toast.warning {
+                        border-left-color: var(--yellow);
+                    }
+
+                    .toast.info {
+                        border-left-color: var(--accent);
+                    }
+
+                @keyframes toastIn {
+                    from {
+                        transform: translateX(20px);
+                        opacity: 0;
+                    }
+
+                    to {
+                        transform: translateX(0);
+                        opacity: 1;
+                    }
+                }
+
+                /* ═══════════════════════════════════════════════
+           SOLVE MODAL
+        ═══════════════════════════════════════════════ */
+                .solve-overlay {
+                    position: fixed;
+                    inset: 0;
+                    background: rgba(0,0,0,.7);
+                    backdrop-filter: blur(4px);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    z-index: 1000;
+                    opacity: 0;
+                    pointer-events: none;
+                    transition: opacity .2s;
+                }
+
+                    .solve-overlay.show {
+                        opacity: 1;
+                        pointer-events: all;
+                    }
+
+                .solve-modal {
+                    background: var(--bg-surface);
+                    border: 1px solid var(--border-light);
+                    border-radius: 14px;
+                    padding: 24px;
+                    width: 440px;
+                    max-width: 90vw;
+                    transform: translateY(10px);
+                    transition: transform .2s;
+                }
+
+                .solve-overlay.show .solve-modal {
+                    transform: translateY(0);
+                }
+
+                .solve-title {
+                    font-family: var(--mono);
+                    font-size: 13px;
+                    font-weight: 600;
+                    color: var(--text-secondary);
+                    text-transform: uppercase;
+                    letter-spacing: 1px;
+                    margin-bottom: 16px;
+                }
+
+                #solve-reply {
+                    width: 100%;
+                    background: var(--bg-elevated);
+                    border: 1px solid var(--border);
+                    border-radius: 8px;
+                    padding: 12px;
+                    color: var(--text-primary);
+                    font-size: 13px;
+                    font-family: var(--sans);
+                    resize: vertical;
+                    outline: none;
+                    min-height: 100px;
+                    transition: border-color .2s;
+                    margin-bottom: 14px;
+                }
+
+                    #solve-reply:focus {
+                        border-color: var(--green);
+                    }
+
+                .solve-btns {
+                    display: flex;
+                    gap: 8px;
+                    justify-content: flex-end;
+                }
+
+                .btn-cancel {
+                    background: transparent;
+                    border: 1px solid var(--border);
+                    color: var(--text-muted);
+                    padding: 8px 16px;
+                    border-radius: 7px;
+                    font-size: 12px;
+                    font-family: var(--mono);
+                    transition: all .15s;
+                }
+
+                    .btn-cancel:hover {
+                        border-color: var(--border-light);
+                        color: var(--text-secondary);
+                    }
+
+                .btn-confirm {
+                    background: var(--green);
+                    color: #fff;
+                    border: none;
+                    padding: 8px 20px;
+                    border-radius: 7px;
+                    font-size: 12px;
+                    font-family: var(--mono);
+                    font-weight: 600;
+                    transition: opacity .15s;
+                }
+
+                    .btn-confirm:hover {
+                        opacity: .85;
+                    }
+
+                /* Stats button in topbar */
+                .btn-stats {
+                    background: var(--bg-elevated);
+                    border: 1px solid var(--border);
+                    color: var(--text-secondary);
+                    padding: 5px 12px;
+                    border-radius: 7px;
+                    font-size: 12px;
+                    font-family: var(--mono);
+                    transition: all .2s;
+                    display: flex;
+                    align-items: center;
+                    gap: 6px;
+                }
+
+                    .btn-stats:hover {
+                        border-color: var(--accent);
+                        color: var(--accent);
+                    }
+    </style>
+</head>
+<body>
+
+    <!-- ═══ LAYOUT ═══ -->
+    <div class="app">
+
+        <!-- TOPBAR -->
+        <header class="topbar">
+            <div class="topbar-brand">
+                <div class="brand-dot"></div>
+                SUPPORT
+            </div>
+
+            <div class="hub-status" style="margin-left:16px">
+                <div class="hub-dot" id="hub-dot"></div>
+                <span id="hub-label">qoşulmur...</span>
+            </div>
+
+            <div class="topbar-sep"></div>
+
+            <div class="topbar-user">
+                <button class="btn-stats" id="btn-stats" style="display:none" onclick="openStats()">
+                    ⬡ Stats
+                </button>
+                <div class="user-chip">
+                    <div class="user-avatar" id="user-avatar">?</div>
+                    <span id="nav-username">—</span>
+                    <span class="role-pill" id="role-pill">—</span>
+                </div>
+                <button class="btn-logout" onclick="logout()">Çıxış</button>
+            </div>
+        </header>
+
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <div class="sidebar-head">
+                <div class="sidebar-title">
+                    Ticketlər
+                    <span class="ticket-count" id="ticket-count">0</span>
+                </div>
+                <div class="filters">
+                    <button class="ftab active" data-s="">Hamısı</button>
+                    <button class="ftab" data-s="1">Açıq</button>
+                    <button class="ftab" data-s="2">Götürülmüş</button>
+                    <button class="ftab" data-s="3">Davam edir</button>
+                    <button class="ftab" data-s="4">Həll edilmiş</button>
+                </div>
+            </div>
+            <div class="ticket-list" id="ticket-list">
+                <div class="list-empty">Yüklənir...</div>
+            </div>
+        </aside>
+
+        <!-- MAIN PANEL -->
+        <main class="main-panel" id="main-panel">
+            <div class="panel-empty">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                </svg>
+                <p>// ticket seçin</p>
+            </div>
+        </main>
+
+    </div>
+
+    <!-- ═══ TOAST CONTAINER ═══ -->
+    <div class="toast-container" id="toasts"></div>
+
+    <!-- ═══ SOLVE MODAL ═══ -->
+    <div class="solve-overlay" id="solve-overlay">
+        <div class="solve-modal">
+            <div class="solve-title">✓ Ticket-i Həll Et</div>
+            <textarea id="solve-reply" placeholder="İstifadəçiyə cavabınızı yazın..."></textarea>
+            <div class="solve-btns">
+                <button class="btn-cancel" onclick="closeSolveModal()">Ləğv et</button>
+                <button class="btn-confirm" onclick="confirmSolve()">Həll Et</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ STATS MODAL ═══ -->
+    <div class="modal-overlay" id="stats-overlay">
+        <div class="modal">
+            <div class="modal-title">
+                ⬡ Statistika
+                <button class="btn-close-modal" onclick="closeStats()">✕</button>
+            </div>
+            <div id="stats-content">Yüklənir...</div>
+        </div>
+    </div>
+
+    <!-- CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
+
+    <script>
+/* ═══════════════════════════════════════════════════════════════
+   CONFIG
+═══════════════════════════════════════════════════════════════ */
+const BASE_URL = window.location.origin;
+const HUB_URL  = `${BASE_URL}/hubs/support`;
+
+/* ═══════════════════════════════════════════════════════════════
+   AUTH HELPERS
+═══════════════════════════════════════════════════════════════ */
+        const Auth = {
+            getToken() {
+                const raw = document.cookie
+                    .split("; ")
+                    .find(row => row.startsWith("AuthToken="))
+                    ?.split("=")[1];
+                if (!raw) return "";
+                let token = decodeURIComponent(raw).trim();
+                if (token.endsWith(".")) token = token.slice(0, -1);
+                return token;
+            },
+
+            _parseJwt() {
+                const token = this.getToken();
+                if (!token) return null;
+                try {
+                    const payload = token.split(".")[1];
+                    return JSON.parse(atob(payload));
+                } catch { return null; }
+            },
+
+            getUsername() {
+                const p = this._parseJwt();
+                return p?.["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"] ?? "Unknown";
+            },
+
+            getRole() {
+                const p = this._parseJwt();
+                return Number(p?.["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"] ?? "0");
+            },
+
+            isAdmin() { return this.getRole() === 64; },
+            isWorkerOrAdmin() { return this.getRole() === 64 || this.getRole() === 128; },
+
+            logout() {
+                document.cookie = "AuthToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+                window.location.href = "/"; // ana səhifəyə yönləndir
+            },
+
+            requireAuth() {
+                if (!this.getToken()) {
+                    window.location.href = "/"; // login.html yox, ana səhifə
+                }
+            }
+        };
+
+        function logout() { Auth.logout(); }
+/* ═══════════════════════════════════════════════════════════════
+   API
+═══════════════════════════════════════════════════════════════ */
+const Api = {
+  async req(method, path, body = null) {
+    const res = await fetch(`${BASE_URL}${path}`, {
+      method,
+      headers: {
+        "Content-Type":  "application/json",
+        "Authorization": `Bearer ${Auth.getToken()}`
+      },
+      body: body ? JSON.stringify(body) : null
+    });
+    if (res.status === 401) { Auth.logout(); return; }
+    const ct = res.headers.get("content-type") ?? "";
+    const data = ct.includes("application/json") ? await res.json() : null;
+    if (!res.ok) throw new Error(data?.message ?? "Xəta baş verdi");
+    return data;
+  },
+  getTickets(status)   { return this.req("GET",  `/api/support/tickets${status != null ? `?status=${status}` : ""}`); },
+  getTicket(id)        { return this.req("GET",  `/api/support/tickets/${id}`); },
+  claimTicket(id)      { return this.req("POST", `/api/support/tickets/${id}/claim`); },
+  solveTicket(id, dto) { return this.req("POST", `/api/support/tickets/${id}/solve`, dto); },
+  reopenTicket(id)     { return this.req("POST", `/api/support/tickets/${id}/reopen`); },
+  getStats()           { return this.req("GET",  `/api/support/stats`); }
+};
+
+/* ═══════════════════════════════════════════════════════════════
+   SIGNALR
+═══════════════════════════════════════════════════════════════ */
+let hubConn = null;
+
+async function connectHub() {
+  hubConn = new signalR.HubConnectionBuilder()
+    .withUrl(HUB_URL, {
+      accessTokenFactory: () => Auth.getToken(),
+      transport: signalR.HttpTransportType.WebSockets
+    })
+    .withAutomaticReconnect([0, 2000, 5000, 10000])
+    .configureLogging(signalR.LogLevel.Warning)
+    .build();
+
+  hubConn.on("NewTicket",      e => { toast(`Yeni ticket: ${e.ticketNumber}`, "info"); loadTickets(); });
+  hubConn.on("TicketClaimed",  e => { toast(`${e.ticketNumber} — ${e.workerName} götürdü`, "info"); loadTickets(); });
+  hubConn.on("TicketSolved",   e => { toast(`${e.ticketNumber} həll edildi`, "success"); loadTickets(); });
+  hubConn.on("TicketReopened", e => { toast(`${e.ticketNumber} yenidən açıldı`, "warning"); loadTickets(); });
+
+  hubConn.on("ReceiveMessage", e => {
+    if (e.ticketId === currentTicketId) appendMsg(e);
+  });
+
+  hubConn.on("ReceiveInternalMessage", e => {
+    if (Auth.isAdmin() && e.ticketId === currentTicketId) appendMsg(e);
+  });
+
+  hubConn.on("Error", msg => toast(msg, "error"));
+
+  hubConn.onreconnecting(() => setHubStatus("reconnecting"));
+  hubConn.onreconnected(() => setHubStatus("connected"));
+  hubConn.onclose(() => setHubStatus("error"));
+
+  await hubConn.start();
+  setHubStatus("connected");
+  if (Auth.isAdmin()) await hubConn.invoke("JoinAdminPanel");
+}
+
+function setHubStatus(s) {
+  const dot = document.getElementById("hub-dot");
+  const lbl = document.getElementById("hub-label");
+  dot.className = "hub-dot";
+  if (s === "connected")    { dot.classList.add("connected"); lbl.textContent = "connected"; }
+  else if (s === "error")   { dot.classList.add("error");     lbl.textContent = "disconnected"; }
+  else                      { lbl.textContent = "reconnecting..."; }
+}
+
+async function hubInvoke(method, ...args) {
+  if (!hubConn || hubConn.state !== signalR.HubConnectionState.Connected) return;
+  try { await hubConn.invoke(method, ...args); }
+  catch(e) { console.error(method, e); }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════════════════════════ */
+let currentTicketId = null;
+let currentFilter   = "";
+let solveTicketId   = null;
+
+/* ═══════════════════════════════════════════════════════════════
+   TICKET LIST
+═══════════════════════════════════════════════════════════════ */
+async function loadTickets() {
+  try {
+    const status  = currentFilter !== "" ? Number(currentFilter) : undefined;
+    const tickets = await Api.getTickets(status);
+    renderList(tickets);
+  } catch(e) { toast(e.message, "error"); }
+}
+
+function renderList(tickets) {
+  const el = document.getElementById("ticket-list");
+  document.getElementById("ticket-count").textContent = tickets?.length ?? 0;
+
+  if (!tickets || tickets.length === 0) {
+    el.innerHTML = `<div class="list-empty">Ticket tapılmadı</div>`;
+    return;
+  }
+
+  el.innerHTML = tickets.map(t => `
+    <div class="ticket-card ${t.id === currentTicketId ? "active" : ""}"
+         onclick="openTicket(${t.id})">
+      <div class="card-top">
+        <span class="tk-num">${esc(t.ticketNumber)}</span>
+        <span class="badge ${priClass(t.priority)}">${priLabel(t.priority)}</span>
+        <span class="badge ${stClass(t.status)}">${stLabel(t.status)}</span>
+      </div>
+      <div class="card-subject">${esc(t.subject)}</div>
+      <div class="card-bottom">
+        <span class="card-user">${esc(t.fullName)}</span>
+        <span>
+          ${t.assignedWorkerName
+            ? `<span class="worker-tag">⬡ ${esc(t.assignedWorkerName)}</span>`
+            : t.status === 1
+              ? `<button class="btn-claim-sm" onclick="event.stopPropagation();claimTicket(${t.id})">Götür</button>`
+              : ""}
+        </span>
+      </div>
+    </div>
+  `).join("");
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   TICKET DETAIL
+═══════════════════════════════════════════════════════════════ */
+async function openTicket(id) {
+  try {
+    if (currentTicketId && currentTicketId !== id)
+      await hubInvoke("LeaveTicket", currentTicketId);
+
+    currentTicketId = id;
+    const t = await Api.getTicket(id);
+    renderDetail(t);
+    await hubInvoke("JoinTicket", id);
+    refreshActiveCard();
+  } catch(e) { toast(e.message, "error"); }
+}
+
+function renderDetail(t) {
+  const panel   = document.getElementById("main-panel");
+  const isSolved = t.status === 4 || t.status === 5;
+
+  panel.innerHTML = `
+    <div class="detail-header">
+      <div class="detail-header-left">
+        <span class="detail-tk-num">${esc(t.ticketNumber)}</span>
+        <span class="badge ${priClass(t.priority)}">${priLabel(t.priority)}</span>
+        <span class="badge ${stClass(t.status)}">${stLabel(t.status)}</span>
+      </div>
+      <div class="header-actions">
+        ${t.status === 1
+          ? `<button class="btn-act btn-primary" onclick="claimTicket(${t.id})">Götür</button>`
+          : ""}
+        ${(t.status === 2 || t.status === 3)
+          ? `<button class="btn-act btn-success" onclick="openSolveModal(${t.id})">✓ Həll Et</button>`
+          : ""}
+        ${Auth.isAdmin() && isSolved
+          ? `<button class="btn-act btn-warning" onclick="reopenAction(${t.id})">↺ Yenidən Aç</button>`
+          : ""}
+      </div>
+    </div>
+
+    <div class="info-bar">
+      <div class="info-item">İstifadəçi:<strong>${esc(t.fullName)}</strong></div>
+      <div class="info-item">Email:<strong>${esc(t.email)}</strong></div>
+      <div class="info-item">Kateqoriya:<strong>${catLabel(t.category)}</strong></div>
+      <div class="info-item">Tarix:<strong>${fmtDate(t.createDate)}</strong></div>
+      ${t.assignedWorkerName
+        ? `<div class="info-item">Worker:<strong style="color:var(--purple)">${esc(t.assignedWorkerName)}</strong></div>`
+        : ""}
+      ${t.solvedAt
+        ? `<div class="info-item">Həll:<strong style="color:var(--green)">${fmtDate(t.solvedAt)}</strong></div>`
+        : ""}
+    </div>
+
+    <div class="orig-msg">
+      <div class="orig-label">// istifadəçi problemi</div>
+      <div class="orig-text">${esc(t.message)}</div>
+    </div>
+
+    <div class="chat-area" id="chat-area">
+      ${t.messages && t.messages.length > 0
+        ? t.messages.map(m => msgHTML(m)).join("")
+        : `<div class="chat-empty">// mesaj yoxdur</div>`}
+    </div>
+
+    ${isSolved
+      ? `<div class="solved-banner">✓ TICKET HƏll EDİLDİ — ${t.solvedAt ? fmtDate(t.solvedAt) : ""}</div>`
+      : `<div class="chat-input-wrap">
+           <div class="chat-row">
+             <textarea id="chat-input" placeholder="Cavabınızı yazın... (Enter = göndər)"></textarea>
+             <button class="btn-send" onclick="sendMsg()">
+               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                 <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+               </svg>
+             </button>
+           </div>
+           <div class="chat-extras">
+             ${Auth.isAdmin()
+               ? `<label class="internal-label">
+                    <input type="checkbox" id="internal-chk">
+                    🔒 Internal mesaj (yalnız adminlər görür)
+                  </label>`
+               : ""}
+           </div>
+         </div>`}
+  `;
+
+  scrollChat();
+  bindInput();
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   ACTIONS
+═══════════════════════════════════════════════════════════════ */
+async function claimTicket(id) {
+  try {
+    await Api.claimTicket(id);
+    toast("Ticket götürüldü", "success");
+    await loadTickets();
+    if (currentTicketId === id) await openTicket(id);
+  } catch(e) { toast(e.message, "error"); }
+}
+
+function openSolveModal(id) {
+  solveTicketId = id;
+  document.getElementById("solve-reply").value = "";
+  document.getElementById("solve-overlay").classList.add("show");
+  setTimeout(() => document.getElementById("solve-reply").focus(), 100);
+}
+
+function closeSolveModal() {
+  document.getElementById("solve-overlay").classList.remove("show");
+  solveTicketId = null;
+}
+
+async function confirmSolve() {
+  const reply = document.getElementById("solve-reply").value.trim();
+  if (!reply) { toast("Cavab mesajı yazın", "warning"); return; }
+  try {
+    await Api.solveTicket(solveTicketId, { replyMessage: reply });
+    toast("Ticket həll edildi", "success");
+    closeSolveModal();
+    await loadTickets();
+    if (currentTicketId === solveTicketId) await openTicket(solveTicketId);
+  } catch(e) { toast(e.message, "error"); }
+}
+
+async function reopenAction(id) {
+  try {
+    await Api.reopenTicket(id);
+    toast("Ticket yenidən açıldı", "success");
+    await loadTickets();
+    await openTicket(id);
+  } catch(e) { toast(e.message, "error"); }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   CHAT
+═══════════════════════════════════════════════════════════════ */
+async function sendMsg() {
+  if (!currentTicketId) return;
+  const input      = document.getElementById("chat-input");
+  const internalEl = document.getElementById("internal-chk");
+  const content    = input?.value.trim();
+  if (!content) return;
+  const isInternal = internalEl?.checked ?? false;
+  await hubInvoke("SendMessage", currentTicketId, content, isInternal);
+  if (input) input.value = "";
+}
+
+function bindInput() {
+  const input = document.getElementById("chat-input");
+  if (!input) return;
+  input.addEventListener("keydown", e => {
+    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMsg(); }
+  });
+  // Auto resize
+  input.addEventListener("input", () => {
+    input.style.height = "42px";
+    input.style.height = Math.min(input.scrollHeight, 100) + "px";
+  });
+}
+
+function appendMsg(e) {
+  const area = document.getElementById("chat-area");
+  if (!area) return;
+  const empty = area.querySelector(".chat-empty");
+  if (empty) empty.remove();
+  const div = document.createElement("div");
+  div.innerHTML = msgHTML({
+    id: e.messageId, senderName: e.senderName,
+    content: e.content, sentAt: e.sentAt, isInternal: e.isInternal
+  });
+  area.appendChild(div.firstElementChild);
+  scrollChat();
+}
+
+function scrollChat() {
+  const a = document.getElementById("chat-area");
+  if (a) a.scrollTop = a.scrollHeight;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   STATS
+═══════════════════════════════════════════════════════════════ */
+async function openStats() {
+  document.getElementById("stats-overlay").classList.add("show");
+  const content = document.getElementById("stats-content");
+  content.innerHTML = "<div style='text-align:center;padding:24px;color:var(--text-muted);font-family:var(--mono);font-size:12px'>Yüklənir...</div>";
+  try {
+    const stats = await Api.getStats();
+    renderStats(stats, content);
+  } catch(e) { content.innerHTML = `<div style='color:var(--red);font-family:var(--mono);font-size:12px'>${e.message}</div>`; }
+}
+
+function closeStats() {
+  document.getElementById("stats-overlay").classList.remove("show");
+}
+
+function renderStats(stats, el) {
+  const statusMap = { Open:1, Claimed:2, InProgress:3, Solved:4, Closed:5 };
+  const getCount  = name => stats.ticketStats.find(s => s.status === name)?.count ?? 0;
+  const total     = stats.ticketStats.reduce((a,b) => a + b.count, 0);
+  const solved    = getCount("Solved");
+  const open      = getCount("Open");
+
+  el.innerHTML = `
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-num">${total}</div>
+        <div class="stat-lbl">Cəmi</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" style="color:var(--accent)">${open}</div>
+        <div class="stat-lbl">Açıq</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" style="color:var(--green)">${solved}</div>
+        <div class="stat-lbl">Həll edilmiş</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" style="color:var(--yellow)">${getCount("Claimed")}</div>
+        <div class="stat-lbl">Götürülmüş</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" style="color:var(--purple)">${getCount("InProgress")}</div>
+        <div class="stat-lbl">Davam edir</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" style="color:var(--text-muted)">${getCount("Closed")}</div>
+        <div class="stat-lbl">Bağlı</div>
+      </div>
+    </div>
+
+    ${stats.workerStats.length > 0 ? `
+    <div class="worker-stats-title">// işçi statistikası</div>
+    ${stats.workerStats.map(w => {
+      const pct = w.total > 0 ? Math.round((w.solved / w.total) * 100) : 0;
+      return `
+      <div class="worker-row">
+        <div class="worker-name">⬡ ${esc(w.workerName ?? "—")}</div>
+        <div class="worker-stat-num">
+          Cəmi: ${w.total} &nbsp;|&nbsp; Həll: <span>${w.solved}</span> &nbsp;|&nbsp; ${pct}%
+        </div>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" style="width:${pct}%"></div>
+      </div>`;
+    }).join("")}` : ""}
+  `;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   HTML HELPERS
+═══════════════════════════════════════════════════════════════ */
+function msgHTML(m) {
+  return `
+    <div class="msg-wrap">
+      <div class="msg-meta">
+        <span class="msg-sender">${esc(m.senderName)}</span>
+        ${m.isInternal ? `<span class="msg-internal-tag">INTERNAL</span>` : ""}
+        <span class="msg-time">${fmtTime(m.sentAt)}</span>
+      </div>
+      <div class="msg-bubble ${m.isInternal ? "internal" : ""}">${esc(m.content)}</div>
+    </div>`;
+}
+
+function priClass(p) { return {1:"badge-low", 2:"badge-medium", 3:"badge-high"}[p] ?? "badge-low"; }
+function priLabel(p) { return {1:"LOW", 2:"MED", 3:"HIGH"}[p] ?? "—"; }
+
+function stClass(s) {
+  return {1:"badge-open", 2:"badge-claimed", 3:"badge-inprogress", 4:"badge-solved", 5:"badge-closed"}[s] ?? "";
+}
+function stLabel(s) {
+  return {1:"AÇIQ", 2:"GÖTÜRÜLMÜŞ", 3:"DAVAM EDİR", 4:"HƏll EDİLMİŞ", 5:"BAĞLI"}[s] ?? "—";
+}
+
+function catLabel(c) {
+  const cats = {1:"Payments",2:"Gameplay",3:"Profile",4:"Auth",5:"Chat",
+    6:"Connection",7:"Wallet",8:"Ranking",9:"Notifications",10:"Mobile",
+    11:"Bonuses",12:"Settings",13:"Audio",14:"Other"};
+  return cats[c] ?? "—";
+}
+
+function fmtDate(d) {
+  if (!d) return "—";
+  return new Date(d).toLocaleDateString("az-AZ", { day:"2-digit", month:"2-digit", year:"numeric" });
+}
+
+function fmtTime(d) {
+  if (!d) return "";
+  return new Date(d).toLocaleTimeString("az-AZ", { hour:"2-digit", minute:"2-digit" });
+}
+
+function esc(s) {
+  if (!s) return "";
+  return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+
+function refreshActiveCard() {
+  document.querySelectorAll(".ticket-card").forEach(c => {
+    const id = parseInt(c.getAttribute("onclick")?.match(/\d+/)?.[0]);
+    c.classList.toggle("active", id === currentTicketId);
+  });
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   TOAST
+═══════════════════════════════════════════════════════════════ */
+function toast(msg, type = "info") {
+  const container = document.getElementById("toasts");
+  const el = document.createElement("div");
+  el.className = `toast ${type}`;
+  el.textContent = msg;
+  container.appendChild(el);
+  setTimeout(() => el.remove(), 3500);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   FILTER TABS
+═══════════════════════════════════════════════════════════════ */
+document.querySelectorAll(".ftab").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".ftab").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    currentFilter = btn.dataset.s;
+    loadTickets();
+  });
+});
+
+/* ═══════════════════════════════════════════════════════════════
+   MODAL CLOSE ON OVERLAY CLICK
+═══════════════════════════════════════════════════════════════ */
+document.getElementById("stats-overlay").addEventListener("click", e => {
+  if (e.target === e.currentTarget) closeStats();
+});
+document.getElementById("solve-overlay").addEventListener("click", e => {
+  if (e.target === e.currentTarget) closeSolveModal();
+});
+
+/* ═══════════════════════════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════════════════════════ */
+document.addEventListener("DOMContentLoaded", async () => {
+  Auth.requireAuth();
+
+  // Navbar
+  const username = Auth.getUsername();
+  document.getElementById("nav-username").textContent  = username;
+  document.getElementById("user-avatar").textContent   = username[0]?.toUpperCase() ?? "?";
+  const rolePill = document.getElementById("role-pill");
+  if (Auth.isAdmin()) {
+    rolePill.textContent = "ADMIN";
+    rolePill.classList.add("admin");
+    document.getElementById("btn-stats").style.display = "flex";
+  } else {
+    rolePill.textContent = "WORKER";
+    rolePill.classList.add("worker");
+  }
+
+  // SignalR
+  try {
+    await connectHub();
+  } catch(e) {
+    toast("SignalR qoşulmadı", "error");
+    setHubStatus("error");
+  }
+
+  // Tickets
+  await loadTickets();
+});
+    </script>
+</body>
+</html>
